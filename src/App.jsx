@@ -1,40 +1,49 @@
 import { Route, Routes, useNavigate } from "react-router";
 import { appNavs } from "./config.jsx";
 import Frame from "./components/Frame/Frame.jsx";
+import { lazy, Suspense, useEffect, useState } from "react";
+import { Loader } from "rsuite";
 
-import DashboardPage from './pages/dashboard/index.jsx';
-import LeadList from './pages/lead/index.jsx'
-import ConversionList from "./pages/conversion/index.jsx";
+// Lazy load all page components for code-splitting
+const DashboardPage = lazy(() => import('./pages/dashboard/index.jsx'));
+const LeadList = lazy(() => import('./pages/lead/index.jsx'));
+const ConversionList = lazy(() => import("./pages/conversion/index.jsx"));
 
+// Venue pages
+const VenueList = lazy(() => import('./pages/venue/venuelist/index.jsx'));
+const VenueCreateForm = lazy(() => import('./pages/venue/venuecreateform/index.jsx'));
+const VenueUpdateForm = lazy(() => import('./pages/venue/venueupdateform/index.jsx'));
+const VenueCategory = lazy(() => import('./pages/venue/venuecategory/index.jsx'));
+const VenuePageList = lazy(() => import("./pages/venue/venuepage/index.jsx"));
+const VenuePageCreate = lazy(() => import("./pages/venue/venuepagecreateform/index.jsx"));
+const VenuePageUpdate = lazy(() => import('./pages/venue/venuepageupdateform/index.jsx'));
+const VenueUpdateImage = lazy(() => import('./pages/venue/venueupdateimage/index.jsx'));
 
-import VenueList from './pages/venue/venuelist/index.jsx';
-import VenueCreateForm from './pages/venue/venuecreateform/index.jsx'
-import VenueUpdateForm from './pages/venue/venueupdateform/index.jsx'
-import VenueCategory from './pages/venue/venuecategory/index.jsx'
-import VenuePageList from "./pages/venue/venuepage/index.jsx";
-import VenuePageCreate from "./pages/venue/venuepagecreateform/index.jsx"
-import VenuePageUpdate from './pages/venue/venuepageupdateform/index.jsx'
-import VenueUpdateImage from './pages/venue/venueupdateimage/index.jsx'
+// Vendor pages
+const VendorList = lazy(() => import('./pages/vendor/vendorlist/index.jsx'));
+const VendorCreateForm = lazy(() => import('./pages/vendor/vendorcreateform/index.jsx'));
+const VendorUpdateForm = lazy(() => import("./pages/vendor/vendorupdateform/index.jsx"));
+const VendorCategoryList = lazy(() => import('./pages/vendor/vendorcategory/index.jsx'));
+const VendorPageList = lazy(() => import("./pages/vendor/vendorpage/index.jsx"));
+const VendorPageCreate = lazy(() => import('./pages/vendor/vendorpagecreateform/index.jsx'));
+const VendorPageUpdate = lazy(() => import('./pages/vendor/vendorpageupdateform/index.jsx'));
+const VendorUpdateImage = lazy(() => import('./pages/vendor/vendorupdateimage/index.jsx'));
 
+// Location pages
+const CityList = lazy(() => import("./pages/location/city/index.jsx"));
+const LocalityList = lazy(() => import("./pages/location/locality/index.jsx"));
 
-import VendorList from './pages/vendor/vendorlist/index.jsx'
-import VendorCreateForm from './pages/vendor/vendorcreateform/index.jsx'
-import VendorUpdateForm from "./pages/vendor/vendorupdateform/index.jsx";
-import VendorCategoryList from './pages/vendor/vendorcategory/index.jsx'
-import VendorPageList from "./pages/vendor/vendorpage/index.jsx";
-import VendorPageCreate from './pages/vendor/vendorpagecreateform/index.jsx'
-import VendorPageUpdate from './pages/vendor/vendorpageupdateform/index.jsx'
-import VendorUpdateImage from './pages/vendor/vendorupdateimage/index.jsx'
+// Auth & Error pages
+const Protected = lazy(() => import("./protected/Protected.jsx"));
+const SignUp = lazy(() => import("./pages/login/SignIn.jsx"));
+const ErrorPage = lazy(() => import('./pages/404/index.jsx'));
 
-
-import CityList from "./pages/location/city/index.jsx";
-import LocalityList from "./pages/location/locality/index.jsx";
-
-import Protected from "./protected/Protected.jsx";
-import SignUp from "./pages/login/SignIn.jsx";
-
-import ErrorPage from './pages/404/index.jsx'
-import { useEffect, useState } from "react";
+// Loading fallback component
+const PageLoader = () => (
+  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+    <Loader size="lg" content="Loading..." />
+  </div>
+);
 
 function App() {
 
@@ -99,7 +108,7 @@ function App() {
   }, [navigate])
 
   return (
-    <>
+    <Suspense fallback={<PageLoader />}>
       <Routes>
 
 
@@ -173,7 +182,7 @@ function App() {
 
 
       </Routes>
-    </>
+    </Suspense>
   );
 }
 
