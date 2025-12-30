@@ -1,0 +1,62 @@
+[
+    {
+        "_id": 1,
+        "name": "Food Provided by Venue",
+        "status": true
+    },
+    {
+        "_id":2,
+        "name":"Outside Food Allowed",
+        "status":true
+    },
+    {
+        "_id": 3,
+        "name": "Decor Provided by Venue",
+        "status": true
+    },
+    {
+        "_id": 4,
+        "name": "Outside Decor Allowed",
+        "status": true
+    },
+    {
+        "_id": 5,
+        "name": "Outside Alcohol Allowed",
+        "status": true
+    },
+    {
+        "_id": 6,
+        "name": "Hawan Allowed",
+        "status": true
+    },
+    {
+        "_id": 7,
+        "name": "Valet Parking",
+        "status": true
+    },
+    {
+        "_id": 8,
+        "name": "Baraat Allowed",
+        "status": true
+    },
+    {
+        "_id": 9,
+        "name": "DJ Allowed",
+        "status": true
+    },
+    {
+        "_id": 10,
+        "name": "Non-Veg Food Allowed",
+        "status": true
+    },
+    {
+        "_id": 11,
+        "name": "Air Conditioned halls",
+        "status": true
+    },
+    {
+        "_id": 12,
+        "name": "Room Service",
+        "status": true
+    }
+]
