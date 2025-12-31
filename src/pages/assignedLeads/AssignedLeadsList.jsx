@@ -1,4 +1,3 @@
-
 import {
     Input,
     InputGroup,
@@ -14,10 +13,11 @@ import {
     DatePicker,
     ButtonToolbar,
     DateRangePicker,
-    SelectPicker,
-    Textarea
-
+    Textarea,
+    Whisper,
+    Tooltip
 } from 'rsuite';
+import InfoOutlineIcon from '@rsuite/icons/InfoOutline';
 
 
 import { useEffect, useState } from "react";
@@ -27,14 +27,13 @@ import ReloadIcon from '@rsuite/icons/Reload';
 import { ActionCell } from './Cells.jsx';
 import formatDate from '../../utils/formatDate.js';
 import api, { authApi } from '../../utils/request/apiRequest.js';
-import { getUser } from '../../../store/store.js';
+
 
 export default function AssignedLeadList() {
 
     const { Column, HeaderCell, Cell } = Table;
     const { getHeight } = DOMHelper;
-    const user = getUser();
-    const ROLE = user?.role || "sales";
+
 
     const [data, setData] = useState([])
     const [sortColumn, setSortColumn] = useState();
@@ -280,7 +279,7 @@ export default function AssignedLeadList() {
 
 
                 <Stack spacing={6}>
-  
+
                     <InputGroup inside>
                         <Input placeholder="Search" onChange={value => handleInputKeyword(value)} />
                         <InputGroup.Addon>
@@ -355,6 +354,34 @@ export default function AssignedLeadList() {
                     </Cell>
                 </Column>
 
+                <Column width={120} resizable sortable align='center'>
+                    <HeaderCell>Remark</HeaderCell>
+                    <Cell>
+                        {rowData => (
+                            rowData?.remark ? (
+                                <Whisper
+                                    trigger="click"
+                                    placement="auto"
+                                    speaker={
+                                        <Tooltip>
+                                            {rowData.remark}
+                                        </Tooltip>
+                                    }
+                                >
+                                    <IconButton
+                                        icon={<InfoOutlineIcon />}
+                                        appearance="subtle"
+                                        size="xs"
+                                        color="blue"
+                                    />
+                                </Whisper>
+                            ) : (
+                                <span>--</span>
+                            )
+                        )}
+                    </Cell>
+                </Column>
+
 
                 <Column width={100} align='center'>
                     <HeaderCell>
@@ -387,69 +414,69 @@ export default function AssignedLeadList() {
             </div>
 
 
-          <Drawer backdrop={"static"} open={openModal} onClose={handleClose}>
-                        <Drawer.Header>
-                            <Drawer.Title>{modalType} Lead</Drawer.Title>
-                            <Drawer.Actions>
-                                <Button onClick={() => handleClose()}>Cancel</Button>
-                                <Button appearance="primary" onClick={handleAddLead}>
-                                    {modalType} Leads
-                                </Button>
-                            </Drawer.Actions>
-                        </Drawer.Header>
-                        <Drawer.Body>
-                            <Form fluid onChange={setFormData} formDefaultValue={formData}>
-                                <Form.Stack spacing={20}>
-                                    <Stack justifyContent="space-between">
-                                        <Form.Group controlId="name">
-                                            <Form.Label>Name</Form.Label>
-                                            <Form.Control name="name" style={{ width: 200 }} />
-                                            <Form.Text>Name is required</Form.Text>
-                                        </Form.Group>
-                                        <Form.Group controlId="phone">
-                                            <Form.Label>Phone</Form.Label>
-                                            <Form.Control name="phone" type="number" style={{ width: 200 }} disabled={modalType === "Update"} />
-                                            <Form.Text>Phone is required</Form.Text>
-                                        </Form.Group>
-                                    </Stack>
+            <Drawer backdrop={"static"} open={openModal} onClose={handleClose}>
+                <Drawer.Header>
+                    <Drawer.Title>{modalType} Lead</Drawer.Title>
+                    <Drawer.Actions>
+                        <Button onClick={() => handleClose()}>Cancel</Button>
+                        <Button appearance="primary" onClick={handleAddLead}>
+                            {modalType} Leads
+                        </Button>
+                    </Drawer.Actions>
+                </Drawer.Header>
+                <Drawer.Body>
+                    <Form fluid onChange={setFormData} formDefaultValue={formData}>
+                        <Form.Stack spacing={20}>
+                            <Stack justifyContent="space-between">
+                                <Form.Group controlId="name">
+                                    <Form.Label>Name</Form.Label>
+                                    <Form.Control name="name" style={{ width: 200 }} />
+                                    <Form.Text>Name is required</Form.Text>
+                                </Form.Group>
+                                <Form.Group controlId="phone">
+                                    <Form.Label>Phone</Form.Label>
+                                    <Form.Control name="phone" type="number" style={{ width: 200 }} disabled={modalType === "Update"} />
+                                    <Form.Text>Phone is required</Form.Text>
+                                </Form.Group>
+                            </Stack>
 
-                                    <Stack justifyContent="space-between">
-                                        <Form.Group controlId="event_date">
-                                            <Form.Label>Event Date</Form.Label>
-                                            <Form.Control name="event_date" oneTap format="dd.MM.yyyy" style={{ width: 200 }} accepter={DatePicker} />
-                                        </Form.Group>
-                                        <Form.Group controlId="no_of_guest">
-                                            <Form.Label>Total Guest</Form.Label>
-                                            <Form.Control name="no_of_guest" type="number" style={{ width: 200 }} />
-                                        </Form.Group>
-                                    </Stack>
+                            <Stack justifyContent="space-between">
+                                <Form.Group controlId="event_date">
+                                    <Form.Label>Event Date</Form.Label>
+                                    <Form.Control name="event_date" oneTap format="dd.MM.yyyy" style={{ width: 200 }} accepter={DatePicker} />
+                                </Form.Group>
+                                <Form.Group controlId="no_of_guest">
+                                    <Form.Label>Total Guest</Form.Label>
+                                    <Form.Control name="no_of_guest" type="number" style={{ width: 200 }} />
+                                </Form.Group>
+                            </Stack>
 
-                                    <Stack justifyContent="space-between">
-                                        <Form.Group controlId="city">
-                                            <Form.Label>City</Form.Label>
-                                            <Form.Control name="city" style={{ width: 200 }} />
-                                        </Form.Group>
-                                        <Form.Group controlId="location">
-                                            <Form.Label>Location</Form.Label>
-                                            <Form.Control name="location" style={{ width: 200 }} />
-                                        </Form.Group>
-                                    </Stack>
-                                    <Form.Group controlId="remark">
-                                        <Form.Label>Remark</Form.Label>
-                                        <Form.Control
-                                            name="remark"
-                                            rows={4}
-                                            accepter={Textarea}
-                                            placeholder="Enter remarks"
-                                        />
-                                    </Form.Group>
+                            <Stack justifyContent="space-between">
+                                <Form.Group controlId="city">
+                                    <Form.Label>City</Form.Label>
+                                    <Form.Control name="city" style={{ width: 200 }} />
+                                </Form.Group>
+                                <Form.Group controlId="location">
+                                    <Form.Label>Location</Form.Label>
+                                    <Form.Control name="location" style={{ width: 200 }} />
+                                </Form.Group>
+                            </Stack>
+                            <Form.Group controlId="remark">
+                                <Form.Label>Remark</Form.Label>
+                                <Form.Control
+                                    name="remark"
+                                    rows={4}
+                                    accepter={Textarea}
+                                    placeholder="Enter remarks"
+                                />
+                            </Form.Group>
 
 
-                                </Form.Stack>
-                            </Form>
-                        </Drawer.Body>
+                        </Form.Stack>
+                    </Form>
+                </Drawer.Body>
 
-                    </Drawer>
+            </Drawer>
 
 
         </>

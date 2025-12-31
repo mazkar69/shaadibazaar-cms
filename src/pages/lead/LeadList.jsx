@@ -1,4 +1,3 @@
-
 import {
     Input,
     InputGroup,
@@ -15,9 +14,11 @@ import {
     ButtonToolbar,
     DateRangePicker,
     SelectPicker,
-    Textarea
-
+    Textarea,
+    Whisper,
+    Tooltip
 } from 'rsuite';
+import InfoOutlineIcon from '@rsuite/icons/InfoOutline';
 
 
 import { useEffect, useState } from "react";
@@ -369,28 +370,35 @@ export default function LeadList() {
                     </Cell>
                 </Column>
 
-                <Column width={80} resizable sortable>
-                    <HeaderCell>Status</HeaderCell>
-                    <Cell>
-                        {
-                            (rowData) => {
-                                return (<Tag color={rowData.status === "resolve" ? "green" : rowData.status === "pending" ? "blue" : "red"}>{rowData.status}</Tag>)
-                            }
-
-                        }
-
-                    </Cell>
-                </Column>
-
-
                 <Column width={120} resizable sortable align='center'>
                     <HeaderCell>Remark</HeaderCell>
-                    <Cell >
+                    <Cell>
                         {rowData => (
-                            <span className='text-center'>{rowData?.remark }</span>
+                            rowData?.remark ? (
+                                <Whisper
+                                    trigger="click"
+                                    placement="auto"
+                                    speaker={
+                                        <Tooltip>
+                                            {rowData.remark}
+                                        </Tooltip>
+                                    }
+                                >
+                                    <IconButton
+                                        icon={<InfoOutlineIcon />}
+                                        appearance="subtle"
+                                        size="xs"
+                                        color="blue"
+                                    />
+                                </Whisper>
+                            ) : (
+                                <span>--</span>
+                            )
                         )}
                     </Cell>
                 </Column>
+
+
 
                 <Column width={100} align='center'>
                     <HeaderCell>
