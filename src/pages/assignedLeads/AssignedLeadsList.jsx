@@ -27,13 +27,14 @@ import ReloadIcon from '@rsuite/icons/Reload';
 import { ActionCell } from './Cells.jsx';
 import formatDate from '../../utils/formatDate.js';
 import api, { authApi } from '../../utils/request/apiRequest.js';
+import { getUser } from '../../../store/store.js';
 
-
-export default function LeadList() {
+export default function AssignedLeadList() {
 
     const { Column, HeaderCell, Cell } = Table;
     const { getHeight } = DOMHelper;
-
+    const user = getUser();
+    const ROLE = user?.role || "sales";
 
     const [data, setData] = useState([])
     const [sortColumn, setSortColumn] = useState();
@@ -91,12 +92,12 @@ export default function LeadList() {
                 setLoading(true)
 
 
-                const url = `/api/leads/allLeads?limit=${limit}&pg=${page}&search=${searchKeyword}&range=${range}&assigned_to=${filterAssignedTo}`
+                const url = `/api/leads/assignedLeads/?limit=${limit}&pg=${page}&search=${searchKeyword}&range=${range}`
 
                 let { data } = await authApi(url)
 
                 if (data.success) {
-                    setData(data.data.leads)
+                    setData(data.data)
                     setCount(data.data.count)
                     setLoading(false);
                 }
@@ -115,20 +116,6 @@ export default function LeadList() {
         }
     }, [page, limit, searchKeyword, range, toggleRender, filterAssignedTo])
 
-    // Fetch users for assignment
-    useEffect(() => {
-        async function fetchUsers() {
-            try {
-                const { data } = await authApi('/api/adminUser/read-all?role=sales');
-                if (data.success) {
-                    setUsers(data.users.map(user => ({ label: user.name, value: user._id })));
-                }
-            } catch (error) {
-                console.log('Error fetching users:', error);
-            }
-        }
-        fetchUsers();
-    }, [])
 
     const magicSearchFunction = (fn, d) => {
         let timmer;
@@ -293,14 +280,7 @@ export default function LeadList() {
 
 
                 <Stack spacing={6}>
-                    <SelectPicker
-                        data={users}
-                        placeholder="Filter by Assigned"
-                        style={{ width: 180 }}
-                        value={filterAssignedTo}
-                        onChange={value => setFilterAssignedTo(value || '')}
-                        searchable={false}
-                    />
+  
                     <InputGroup inside>
                         <Input placeholder="Search" onChange={value => handleInputKeyword(value)} />
                         <InputGroup.Addon>
@@ -360,14 +340,7 @@ export default function LeadList() {
                     <Cell dataKey='submissionCount' />
                 </Column>
 
-                <Column width={120} resizable sortable align='center'>
-                    <HeaderCell>Assigned</HeaderCell>
-                    <Cell >
-                        {rowData => (
-                            <span className='text-center'>{rowData?.assigned_to?.name || "--"}</span>
-                        )}
-                    </Cell>
-                </Column>
+
 
                 <Column width={80} resizable sortable>
                     <HeaderCell>Status</HeaderCell>
@@ -382,15 +355,6 @@ export default function LeadList() {
                     </Cell>
                 </Column>
 
-
-                <Column width={120} resizable sortable align='center'>
-                    <HeaderCell>Remark</HeaderCell>
-                    <Cell >
-                        {rowData => (
-                            <span className='text-center'>{rowData?.remark }</span>
-                        )}
-                    </Cell>
-                </Column>
 
                 <Column width={100} align='center'>
                     <HeaderCell>
@@ -423,66 +387,53 @@ export default function LeadList() {
             </div>
 
 
-            <Drawer backdrop={"static"} open={openModal} onClose={handleClose}>
-                <Drawer.Header>
-                    <Drawer.Title>{modalType} Lead</Drawer.Title>
-                    <Drawer.Actions>
-                        <Button onClick={() => handleClose()}>Cancel</Button>
-                        <Button appearance="primary" onClick={handleAddLead}>
-                            {modalType} Leads
-                        </Button>
-                    </Drawer.Actions>
-                </Drawer.Header>
-                <Drawer.Body>
-                    <Form fluid onChange={setFormData} formDefaultValue={formData}>
-                        <Form.Stack spacing={20}>
-                            <Stack justifyContent="space-between">
-                                <Form.Group controlId="name">
-                                    <Form.Label>Name</Form.Label>
-                                    <Form.Control name="name" style={{ width: 200 }} />
-                                    <Form.Text>Name is required</Form.Text>
-                                </Form.Group>
-                                <Form.Group controlId="phone">
-                                    <Form.Label>Phone</Form.Label>
-                                    <Form.Control name="phone" type="number" style={{ width: 200 }} />
-                                    <Form.Text>Phone is required</Form.Text>
-                                </Form.Group>
-                            </Stack>
+          <Drawer backdrop={"static"} open={openModal} onClose={handleClose}>
+                        <Drawer.Header>
+                            <Drawer.Title>{modalType} Lead</Drawer.Title>
+                            <Drawer.Actions>
+                                <Button onClick={() => handleClose()}>Cancel</Button>
+                                <Button appearance="primary" onClick={handleAddLead}>
+                                    {modalType} Leads
+                                </Button>
+                            </Drawer.Actions>
+                        </Drawer.Header>
+                        <Drawer.Body>
+                            <Form fluid onChange={setFormData} formDefaultValue={formData}>
+                                <Form.Stack spacing={20}>
+                                    <Stack justifyContent="space-between">
+                                        <Form.Group controlId="name">
+                                            <Form.Label>Name</Form.Label>
+                                            <Form.Control name="name" style={{ width: 200 }} />
+                                            <Form.Text>Name is required</Form.Text>
+                                        </Form.Group>
+                                        <Form.Group controlId="phone">
+                                            <Form.Label>Phone</Form.Label>
+                                            <Form.Control name="phone" type="number" style={{ width: 200 }} disabled={modalType === "Update"} />
+                                            <Form.Text>Phone is required</Form.Text>
+                                        </Form.Group>
+                                    </Stack>
 
-                            <Stack justifyContent="space-between">
-                                <Form.Group controlId="event_date">
-                                    <Form.Label>Event Date</Form.Label>
-                                    <Form.Control name="event_date" oneTap format="dd.MM.yyyy" style={{ width: 200 }} accepter={DatePicker} />
-                                </Form.Group>
-                                <Form.Group controlId="no_of_guest">
-                                    <Form.Label>Total Guest</Form.Label>
-                                    <Form.Control name="no_of_guest" type="number" style={{ width: 200 }} />
-                                </Form.Group>
-                            </Stack>
+                                    <Stack justifyContent="space-between">
+                                        <Form.Group controlId="event_date">
+                                            <Form.Label>Event Date</Form.Label>
+                                            <Form.Control name="event_date" oneTap format="dd.MM.yyyy" style={{ width: 200 }} accepter={DatePicker} />
+                                        </Form.Group>
+                                        <Form.Group controlId="no_of_guest">
+                                            <Form.Label>Total Guest</Form.Label>
+                                            <Form.Control name="no_of_guest" type="number" style={{ width: 200 }} />
+                                        </Form.Group>
+                                    </Stack>
 
-                            <Stack justifyContent="space-between">
-                                <Form.Group controlId="city">
-                                    <Form.Label>City</Form.Label>
-                                    <Form.Control name="city" style={{ width: 200 }} />
-                                </Form.Group>
-                                <Form.Group controlId="location">
-                                    <Form.Label>Location</Form.Label>
-                                    <Form.Control name="location" style={{ width: 200 }} />
-                                </Form.Group>
-                            </Stack>
-
-                            {modalType === "Update" && (
-                                <>
-                                    <Form.Group controlId="assigned_to">
-                                        <Form.Label>Assigned To</Form.Label>
-                                        <Form.Control
-                                            name="assigned_to"
-                                            accepter={SelectPicker}
-                                            data={users}
-                                            style={{ width: 200 }}
-                                            placeholder="Select user"
-                                        />
-                                    </Form.Group>
+                                    <Stack justifyContent="space-between">
+                                        <Form.Group controlId="city">
+                                            <Form.Label>City</Form.Label>
+                                            <Form.Control name="city" style={{ width: 200 }} />
+                                        </Form.Group>
+                                        <Form.Group controlId="location">
+                                            <Form.Label>Location</Form.Label>
+                                            <Form.Control name="location" style={{ width: 200 }} />
+                                        </Form.Group>
+                                    </Stack>
                                     <Form.Group controlId="remark">
                                         <Form.Label>Remark</Form.Label>
                                         <Form.Control
@@ -492,13 +443,13 @@ export default function LeadList() {
                                             placeholder="Enter remarks"
                                         />
                                     </Form.Group>
-                                </>
-                            )}
-                        </Form.Stack>
-                    </Form>
-                </Drawer.Body>
 
-            </Drawer>
+
+                                </Form.Stack>
+                            </Form>
+                        </Drawer.Body>
+
+                    </Drawer>
 
 
         </>

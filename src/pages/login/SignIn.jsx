@@ -1,58 +1,53 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { Form, Button, Panel, Stack, Divider } from 'rsuite';
+import api from '../../utils/request/apiRequest';
 
 
 const SignUp = () => {
 
-const navigate = useNavigate();
+  const navigate = useNavigate();
 
-const [formData,setFormData] = useState({username:"",password:""})
-const [loading,setLoading] =useState(false)
-
-
-const handleLogin = async()=>{
-  // console.log(formData)
-
-  if(!formData.username || !formData.password){
-    alert("Invalid field");
-    return;
-  }
-
-  try {
-    setLoading("true")
-    let response = await fetch("/api/login",{
-      method:"POST",
-      headers:{
-        "Content-Type":"application/json"
-      },
-      body:JSON.stringify(formData)
-    })
-
-    response = await response.json()
+  const [formData, setFormData] = useState({ username: "", password: "" })
+  const [loading, setLoading] = useState(false)
 
 
+  const handleLogin = async () => {
+    // console.log(formData)
 
-    if(response.success){
-      //save token to the stroage and redirect to the dashboard
-
-      localStorage.setItem("x4976gtylCC",response.token)
-      navigate("/");
-
-    }else{
-      //password or usename is  invalid
-      alert("Invalid Credentials")
+    if (!formData.username || !formData.password) {
+      alert("Invalid field");
+      return;
     }
 
-  } catch (error) {
-    alert("Internal server error")
-    console.log(error)
-    
-  }finally{
-    setLoading(false)
-  }
+    try {
+      setLoading("true")
+      let { data } = await api.post("/api/login/admin", {
+        email: formData.username,
+        password: formData.password
+      })
 
-}
+
+      if (data.success) {
+        //save token to the stroage and redirect to the dashboard
+
+        localStorage.setItem("x4976gtylCC", data.token)
+        navigate("/");
+
+      } else {
+        //password or usename is  invalid
+        alert("Invalid Credentials")
+      }
+
+    } catch (error) {
+      alert("Internal server error")
+      console.log(error)
+
+    } finally {
+      setLoading(false)
+    }
+
+  }
 
 
   return (
@@ -67,7 +62,7 @@ const handleLogin = async()=>{
       {/* <Brand style={{ marginBottom: 10 }} /> */}
 
       <Panel bordered style={{ background: '#fff', width: 400 }} header={<h3>Admin Login</h3>}>
-      
+
         <Form fluid onChange={setFormData}>
           <Form.Group>
             <Form.ControlLabel>Username</Form.ControlLabel>
@@ -83,7 +78,7 @@ const handleLogin = async()=>{
           <Form.Group>
             <Stack spacing={6} divider={<Divider vertical />}>
               <Button appearance="primary" type='submit' loading={loading} onClick={handleLogin}>Sign in</Button>
-              
+
             </Stack>
           </Form.Group>
         </Form>

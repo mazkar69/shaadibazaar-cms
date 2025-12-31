@@ -1,8 +1,9 @@
 import { Route, Routes, useNavigate } from "react-router";
-import { appNavs } from "./config.jsx";
+import {superAdminNavs, adminNavs, salesNavs} from "./navConfig.jsx";
 import Frame from "./components/Frame/Frame.jsx";
 import { lazy, Suspense, useEffect, useState } from "react";
 import { Loader } from "rsuite";
+import api from "./utils/request/apiRequest.js";
 
 // Lazy load all page components for code-splitting
 const DashboardPage = lazy(() => import('./pages/dashboard/index.jsx'));
@@ -28,6 +29,8 @@ const VendorPageList = lazy(() => import("./pages/vendor/vendorpage/index.jsx"))
 const VendorPageCreate = lazy(() => import('./pages/vendor/vendorpagecreateform/index.jsx'));
 const VendorPageUpdate = lazy(() => import('./pages/vendor/vendorpageupdateform/index.jsx'));
 const VendorUpdateImage = lazy(() => import('./pages/vendor/vendorupdateimage/index.jsx'));
+const MangeUser  = lazy(() => import('./pages/userManagement/index.jsx'));
+const AssignedLeadList = lazy(() => import("./pages/assignedLeads/index.jsx"));
 
 // Location pages
 const CityList = lazy(() => import("./pages/location/city/index.jsx"));
@@ -37,6 +40,8 @@ const LocalityList = lazy(() => import("./pages/location/locality/index.jsx"));
 const Protected = lazy(() => import("./protected/Protected.jsx"));
 const SignUp = lazy(() => import("./pages/login/SignIn.jsx"));
 const ErrorPage = lazy(() => import('./pages/404/index.jsx'));
+
+import { setUser, getUser, deleteUser } from "../store/store.js";
 
 // Loading fallback component
 const PageLoader = () => (
@@ -48,12 +53,15 @@ const PageLoader = () => (
 function App() {
 
   const navigate = useNavigate()
+  const user = getUser();
+  const ROLE = user.role;
+  const navs = ROLE === "superAdmin" ? [...superAdminNavs, ...adminNavs] : ROLE === "admin" ? adminNavs : salesNavs;
 
   const [auth, setAuth] = useState({
     valid: false,
     role: "admin"
   })
-  
+
 
   //This usesEffect will check the token if the token is vailid  it will set user to true and allow access to protected routes otherwise redirect to login page
   useEffect(() => {
@@ -71,33 +79,32 @@ function App() {
 
       try {
 
-        let isValid = await fetch("/api/authanticate/token", {
-          method: "POST",
-          body: JSON.stringify({ token: token }),
-          headers: {
-            'Content-Type': 'application/json'
-          }
+        const { data } = await api.post("/api/authanticateToken/admin", {
+          token: token
         });
 
-        isValid = await isValid.json();
-
-
         //if token is valid.
-        if (isValid.success) {
+        if (data.success) {
           setAuth({
             valid: true,
-            role: isValid.role
+            role: data.user.role
           })
+
+          //Set the user in the zustand store
+          setUser(data.user);
         }
         else {
           //Token is not valid . Redirect to Login Page and remove the invalid token from the  storage
           localStorage.removeItem("x4976gtylCC");
+          deleteUser();
           navigate('/login');
 
         }
       } catch (error) {
 
         console.log("Error validating token");
+        localStorage.removeItem("x4976gtylCC");
+        deleteUser();
         navigate("/login")
 
       }
@@ -107,6 +114,10 @@ function App() {
     validate();
   }, [navigate])
 
+  console.log("Logged User:", user);
+
+
+
   return (
     <Suspense fallback={<PageLoader />}>
       <Routes>
@@ -115,7 +126,7 @@ function App() {
         {/* If user is valid then show this routes */}
         {auth.valid && (
 
-          <Route path="/" element={<Protected><Frame navs={appNavs} /></Protected>}>
+          <Route path="/" element={<Protected><Frame navs={navs} /></Protected>}>
             <Route index element={<DashboardPage />} />
             <Route path="dashboard" element={<DashboardPage />} />
 
@@ -164,12 +175,19 @@ function App() {
             {
               auth.role === "superAdmin" && (
                 <>
+                 
+                  <Route path='manage-user' element={<MangeUser />} />
                   <Route path="leads" element={<LeadList />} />
                   <Route path="conversion" element={<ConversionList />} />
                 </>
 
               )
             }
+
+            {/* For Sales */}
+            auth.role === "sales" && (
+              <Route path="assigned-leads" element={<AssignedLeadList />} />
+            )
 
 
           </Route>
