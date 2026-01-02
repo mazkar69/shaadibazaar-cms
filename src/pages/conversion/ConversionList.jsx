@@ -20,7 +20,7 @@ import MobileIcon from '@rsuite/icons/Mobile';
 import PcIcon from '@rsuite/icons/Pc';
 import ReloadIcon from '@rsuite/icons/Reload';
 import formatDate from '../../utils/formatDate.js';
-
+import {authApi} from '../../utils/request/apiRequest.js';
 
 export default function ConversionList() {
 
@@ -50,21 +50,17 @@ export default function ConversionList() {
                 setLoading(true)
 
 
-                const url = `/api/conversion/list?limit=${limit}&pg=${page}&search=${searchKeyword}&range=${range}`
+                const {data} = await authApi(`/api/conversion/getAll?limit=${limit}&pg=${page}&search=${searchKeyword}&range=${range}`)
 
-                let response = await fetch(url);
-                response = await response.json();
 
-                if (response.success) {
-                    setData(response.data.conversions)
-                    setCount(response.data.count)
+                if (data.success) {
+                    setData(data?.data.conversions)
+                    setCount(data?.data.count)
                     setLoading(false);
                 }
                 else {
                     setLoading(false)
                 }
-
-
             }
 
             getData();
@@ -199,8 +195,8 @@ export default function ConversionList() {
                     <Cell>
                         {rowData => (<Stack spacing={12}>
                        
+                            <Badge content={rowData.count} maxCount={1000}></Badge>
                             <span>{rowData.slug}</span>
-                            <Badge content={rowData.count}></Badge>
                         </Stack>)}
                     </Cell>
 

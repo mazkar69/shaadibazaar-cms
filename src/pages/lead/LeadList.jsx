@@ -16,7 +16,9 @@ import {
     SelectPicker,
     Textarea,
     Whisper,
-    Tooltip
+    Tooltip,
+    Modal,
+    List
 } from 'rsuite';
 import InfoOutlineIcon from '@rsuite/icons/InfoOutline';
 
@@ -45,7 +47,8 @@ export default function LeadList() {
     const [limit, setLimit] = useState(10);
     const [page, setPage] = useState(1);
     const [range, setRange] = useState([])
-
+    const [viewModal, setViewModal] = useState(false);
+    const [viewLead, setViewLead] = useState(null);
     const [searchKeyword, setSearchKeyword] = useState('');
     const [toggleRender, setToggleRender] = useState(false);
     const [filterAssignedTo, setFilterAssignedTo] = useState('');
@@ -81,6 +84,16 @@ export default function LeadList() {
     }
 
     const handleClose = () => setOpenModal(false);
+
+    const handleView = (lead) => {
+        setViewLead(lead);
+        setViewModal(true);
+    }
+
+    const handleViewClose = () => {
+        setViewModal(false);
+        setViewLead(null);
+    }
 
 
     useEffect(() => {
@@ -356,7 +369,7 @@ export default function LeadList() {
                 </Column>
 
 
-                <Column width={80} resizable sortable>
+                <Column width={80} resizable sortable align='center'>
                     <HeaderCell>Count</HeaderCell>
                     <Cell dataKey='submissionCount' />
                 </Column>
@@ -370,7 +383,7 @@ export default function LeadList() {
                     </Cell>
                 </Column>
 
-                <Column width={120} resizable sortable align='center'>
+                <Column width={100} resizable sortable align='center'>
                     <HeaderCell>Remark</HeaderCell>
                     <Cell>
                         {rowData => (
@@ -401,10 +414,14 @@ export default function LeadList() {
 
 
                 <Column width={100} align='center'>
-                    <HeaderCell>
-                        Action
-                    </HeaderCell>
-                    <ActionCell dataKey="id" handleDelete={handleDelete} handleUpdateStatus={handleUpdateStatus} handleOpen={handleOpen} />
+                    <HeaderCell>Action</HeaderCell>
+                    <ActionCell
+                        dataKey="id"
+                        handleDelete={handleDelete}
+                        handleUpdateStatus={handleUpdateStatus}
+                        handleOpen={handleOpen}
+                        handleView={handleView}
+                    />
                 </Column>
             </Table>
 
@@ -507,6 +524,78 @@ export default function LeadList() {
                 </Drawer.Body>
 
             </Drawer>
+
+
+
+            {/* View Lead Modal */}
+            <Modal open={viewModal} onClose={handleViewClose} size="sm">
+                <Modal.Header>
+                    <Modal.Title>Lead Details</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {viewLead && (
+                        <List bordered>
+                            <List.Item>
+                                <strong>ID:</strong> {viewLead._id}
+                            </List.Item>
+                            <List.Item>
+                                <strong>Name:</strong> {viewLead.name || '--'}
+                            </List.Item>
+                            <List.Item>
+                                <strong>Phone:</strong> {viewLead.phone || '--'}
+                            </List.Item>
+                            <List.Item>
+                                <strong>Email:</strong> {viewLead.email || '--'}
+                            </List.Item>
+                            <List.Item>
+                                <strong>City:</strong> {viewLead.city || '--'}
+                            </List.Item>
+                            <List.Item>
+                                <strong>Location:</strong> {viewLead.location || '--'}
+                            </List.Item>
+                            <List.Item>
+                                <strong>Preference:</strong> {viewLead.preference || '--'}
+                            </List.Item>
+                            <List.Item>
+                                <strong>Event Date:</strong> {viewLead.event_date ? formatDate(viewLead.event_date) : '--'}
+                            </List.Item>
+                            <List.Item>
+                                <strong>No. of Guests:</strong> {viewLead.no_of_guest || '--'}
+                            </List.Item>
+                            <List.Item>
+                                <strong>Source:</strong> {viewLead.source || '--'}
+                            </List.Item>
+                            <List.Item>
+                                <strong>URL:</strong> {viewLead.url || '--'}
+                            </List.Item>
+                            <List.Item>
+                                <strong>Submission Count:</strong> {viewLead.submissionCount || 1}
+                            </List.Item>
+                            <List.Item>
+                                <strong>Status:</strong>{' '}
+                                <Tag color={viewLead.status === "resolve" ? "green" : viewLead.status === "pending" ? "blue" : "red"}>
+                                    {viewLead.status}
+                                </Tag>
+                            </List.Item>
+                            <List.Item>
+                                <strong>Stage:</strong>{' '}
+                                <Tag color="violet">{viewLead.stage || 'level1'}</Tag>
+                            </List.Item>
+                            <List.Item>
+                                <strong>Assigned To:</strong> {viewLead.assigned_to?.name || '--'}
+                            </List.Item>
+                            <List.Item>
+                                <strong>Remark:</strong> {viewLead.remark || '--'}
+                            </List.Item>
+                        </List>
+                    )}
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button onClick={handleViewClose} appearance="primary">
+                        Close
+                    </Button>
+                </Modal.Footer>
+            </Modal>
 
 
         </>

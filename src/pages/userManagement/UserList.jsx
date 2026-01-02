@@ -13,7 +13,7 @@ import {
 
 } from 'rsuite';
 
-
+import formatDate from '../../utils/formatDate.js';
 import { useEffect, useState } from "react";
 import SearchIcon from '@rsuite/icons/Search';
 import PlusIcon from '@rsuite/icons/Plus';
@@ -36,7 +36,7 @@ export default function UserList() {
 
     const [opanAddUserModal, setOpenAddUserModal] = useState(false);
     const [opanUpdateUserModal, setOpenUpdateUserModal] = useState(false);
-    const [updateUserData,setUpdateUserData] = useState({})
+    const [updateUserData, setUpdateUserData] = useState({})
 
     const { Column, HeaderCell, Cell } = Table;
     const { getHeight } = DOMHelper;
@@ -50,11 +50,11 @@ export default function UserList() {
     const [limit, setLimit] = useState(10);
     const [page, setPage] = useState(1);
 
-    const [searchRole,setSearchRole] = useState("");
+    const [searchRole, setSearchRole] = useState("");
     const [searchKeyword, setSearchKeyword] = useState('');
     const [toggleRender, setToggleRender] = useState(false);
     const refetch = () => setToggleRender(!toggleRender);
-    
+
 
     console.log("Data:", data)
     useEffect(() => {
@@ -67,10 +67,10 @@ export default function UserList() {
 
                 // const url = `${import.meta}/api/venue/page/list?limit=${limit}&pg=${page}&search=${searchKeyword}`
 
-                
+
                 const { data } = await authApi(`/api/adminUser/read-all?search=${searchKeyword}&limit=${limit}&pg=${page}&role=${searchRole || ""}`)
 
-                console.log(data)
+
 
 
                 if (data.success) {
@@ -91,7 +91,7 @@ export default function UserList() {
             console.log(error)
             setLoading(false);
         }
-    }, [page, limit, searchKeyword, toggleRender,searchRole])
+    }, [page, limit, searchKeyword, toggleRender, searchRole])
 
 
     const magicSearchFunction = (fn, d) => {
@@ -200,7 +200,7 @@ export default function UserList() {
         }
     }
 
-    const updateUser = (data)=>{
+    const updateUser = (data) => {
         console.log(data)
         setUpdateUserData(data);
         setOpenUpdateUserModal(true);
@@ -219,13 +219,13 @@ export default function UserList() {
 
 
                 <Stack spacing={6}>
-                    
+
                     <SelectPicker
                         data={role}
                         searchable={false}
                         placeholder="Select Role"
                         value={searchRole}
-                        onChange={(value)=>setSearchRole(value)}
+                        onChange={(value) => setSearchRole(value)}
                     />
 
                     <InputGroup inside>
@@ -265,6 +265,20 @@ export default function UserList() {
                     <HeaderCell>Email</HeaderCell>
                     <Cell dataKey='email' />
                 </Column>
+                <Column width={150} sortable>
+                    <HeaderCell>Last Login</HeaderCell>
+                    <Cell>
+                        {rowData => {
+                            const lastLoginArray = rowData?.lastLogin;
+                            const lastLogin = lastLoginArray?.length > 0
+                                ? lastLoginArray[lastLoginArray.length - 1]
+                                : null;
+                            return (
+                                <span>{lastLogin ? formatDate(lastLogin) : '--'}</span>
+                            );
+                        }}
+                    </Cell>
+                </Column>
 
                 <Column sortable >
                     <HeaderCell>Status</HeaderCell>
@@ -282,7 +296,7 @@ export default function UserList() {
                     <HeaderCell>
                         Action
                     </HeaderCell>
-                    <ActionCell handleDelete={handleDelete} updateStatus={updateStatus} updateUser={updateUser}/>
+                    <ActionCell handleDelete={handleDelete} updateStatus={updateStatus} updateUser={updateUser} />
                     {/* <Cell><MoreIcon /></Cell> */}
                     {/* <ActionCell dataKey="id" handleDelete={handleDelete}/> */}
                 </Column>
@@ -292,7 +306,7 @@ export default function UserList() {
 
             {/* Modal */}
             <AddUserModal handleClose={handleClose} open={opanAddUserModal} refetch={refetch} />
-            <UpdateUserModal handleClose={handleClose} open={opanUpdateUserModal} refetch={refetch} updateUserData={updateUserData}/>
+            <UpdateUserModal handleClose={handleClose} open={opanUpdateUserModal} refetch={refetch} updateUserData={updateUserData} />
         </>
 
     )

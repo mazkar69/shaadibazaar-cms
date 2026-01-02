@@ -1,7 +1,8 @@
-
 import { Popover, Whisper, Dropdown, IconButton, Table, Toggle, ButtonGroup } from 'rsuite';
 import { LiaEdit } from "react-icons/lia";
 import { BsThreeDots } from "react-icons/bs";
+import { RiDeleteBin6Line } from "react-icons/ri";
+import { GrView } from "react-icons/gr";
 
 const { Cell } = Table;
 
@@ -32,31 +33,18 @@ export const NameCell = ({ rowData, dataKey, ...props }) => {
   );
 };
 
-
-// const renderMenu = ({ onClose, left, top, className }, ref) => {
-//   const handleSelect = eventKey => {
-//     // onClose();
-//     // console.log(handleUpdateStatus)
-//     console.log(eventKey);
-//   };
-//   return (
-//     <Popover ref={ref} className={className} style={{ left, top }} full>
-//       <Dropdown.Menu onSelect={handleSelect}>
-//         <Dropdown.Item eventKey={"pending"}>Pending</Dropdown.Item>
-//         <Dropdown.Item eventKey={"resolved"}>Resolved</Dropdown.Item>
-//         <Dropdown.Item eventKey={"reject"}>Reject</Dropdown.Item>
-//       </Dropdown.Menu>
-//     </Popover>
-//   );
-// };
-
-export const ActionCell = ({ rowData, handleDelete, handleUpdateStatus, handleOpen, ...props }) => {
+export const ActionCell = ({ rowData, handleDelete, handleUpdateStatus, handleOpen, handleView, ...props }) => {
   return (
     <Cell {...props} className="link-group">
       <ButtonGroup>
         
-        {/* <IconButton icon={<LiaEdit color='green'/>} size='sm' appearance='subtle' title='Edit'/>
-        <IconButton icon={<RiDeleteBin6Line color='red'/>} size='sm' appearance='subtle' title="Delete" onClick={()=>handleDelete(rowData._id)}/> */}
+        <IconButton 
+          icon={<GrView color='blue'/>} 
+          size='sm' 
+          appearance='subtle' 
+          title="View" 
+          onClick={() => handleView(rowData)}
+        />
 
         <IconButton icon={<LiaEdit color='green' />} size='sm' appearance='subtle' title='Edit' onClick={() => {
           handleOpen(rowData._id,
@@ -72,12 +60,13 @@ export const ActionCell = ({ rowData, handleDelete, handleUpdateStatus, handleOp
           )
         }} />
 
+        <IconButton icon={<RiDeleteBin6Line color='red'/>} size='sm' appearance='subtle' title="Delete" onClick={()=>handleDelete(rowData._id)}/>
+
         <Whisper placement="autoVerticalEnd" trigger="click"
           speaker={({ onClose, left, top, className }, ref) => {
             const handleSelect = eventKey => {
               onClose();
               handleUpdateStatus(rowData._id, eventKey)
-              // console.log(handleUpdateStatus)
               console.log(eventKey);
             };
             return (
@@ -94,11 +83,9 @@ export const ActionCell = ({ rowData, handleDelete, handleUpdateStatus, handleOp
           <IconButton appearance="subtle" icon={<BsThreeDots />} size='sm' title="Menu" />
         </Whisper>
       </ButtonGroup>
-
-    </Cell >
+    </Cell>
   );
 };
-
 
 export const CustomCell = ({ rowData, dataKey, ...props }) => {
   return (
@@ -116,5 +103,4 @@ export const ToggleCell = ({ rowData, dataKey, handleToggle, ...props }) => {
       <Toggle checked={rowData[dataKey]} onChange={value => handleToggle(value, dataKey, rowData._id)} size="sm" />
     </Cell>
   )
-
 }
