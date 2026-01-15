@@ -11,7 +11,12 @@ export default api;
 
 export const authApi = axios.create({
     baseURL: import.meta.env.VITE_BACKEND_URI,
-});
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    // withCredentials: true,  // Enable this if your API requires cookies or other credentials to be sent along with the request
+    // 'Access-Control-Allow-Origin': '*',  // Adjust this based on your server's CORS poli
+    });
 
 
 export const authMultiFormApi = axios.create({

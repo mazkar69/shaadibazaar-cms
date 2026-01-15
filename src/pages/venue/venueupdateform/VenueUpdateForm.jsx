@@ -1,9 +1,55 @@
-import { Button, Checkbox, Col, Form, IconButton, Input, InputNumber, Panel, Row, SelectPicker, Stack, TagPicker } from "rsuite";
+import { Button, Checkbox, Col, Form, IconButton, NumberInput, Panel, Row, SelectPicker, Stack, TagPicker, Textarea } from "rsuite";
 
 import { CKEditor } from '@ckeditor/ckeditor5-react';
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import {
+    ClassicEditor,
+    Autoformat,
+    Bold,
+    Italic,
+    Underline,
+    BlockQuote,
+    Essentials,
+    FindAndReplace,
+    Font,
+    Heading,
+    Image,
+    ImageCaption,
+    ImageResize,
+    ImageStyle,
+    ImageToolbar,
+    ImageUpload,
+    PictureEditing,
+    Indent,
+    IndentBlock,
+    Link,
+    List,
+    MediaEmbed,
+    Mention,
+    Paragraph,
+    PasteFromOffice,
+    SourceEditing,
+    Table,
+    TableColumnResize,
+    TableToolbar,
+    TextTransformation,
+    HtmlEmbed,
+    CodeBlock,
+    RemoveFormat,
+    Code,
+    SpecialCharacters,
+    HorizontalLine,
+    PageBreak,
+    TodoList,
+    Strikethrough,
+    Subscript,
+    Superscript,
+    Highlight,
+    Alignment
+} from 'ckeditor5';
+import 'ckeditor5/ckeditor5.css';
+
 import PlusIcon from '@rsuite/icons/Plus';
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import CloseIcon from '@rsuite/icons/Close';
 import { Icon } from "@rsuite/icons";
 import getCities from "../../../utils/request/getCities.js";
@@ -15,6 +61,9 @@ import PhoneNumbers from '../../../utils/json/phoneNumber.json'
 import getBudget from "../../../utils/request/getBudget.js";
 import getVenues from "../../../utils/request/getVenues.js";
 import { useNavigate, useParams } from "react-router";
+import { authApi } from "../../../utils/request/apiRequest.js";
+
+
 // console.log(VenueFeatureData)
 
 export default function VenueUpdateForm() {
@@ -81,14 +130,10 @@ export default function VenueUpdateForm() {
     useEffect(() => {
         const getVenueDetails = async () => {
             try {
-                let response = await fetch(`/api/venue/details/${_id}`)
+                const { data } = await authApi.get(`/api/venue/details/${_id}`);
 
-
-                response = await response.json();
-                // console.log(response)
-                if (response.success) {
-                    setFormData(response.data)
-
+                if (data.success) {
+                    setFormData(data.data)
                 } else {
                     //reload the browser
                 }
@@ -282,24 +327,16 @@ export default function VenueUpdateForm() {
             
             const structuredSlug = `${formData.slug}-in-${localitiesSlug[formData.location_id]}`
 
-            let response = await fetch(`/api/venue/update/${_id}`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({...formData,slug:structuredSlug})
-            })
+            const { data } = await authApi.post(`/api/venue/update/${_id}`, { ...formData, slug: structuredSlug })
 
-            response = await response.json();
-
-            if (response.success) {
+            if (data.success) {
                 //Redirect to the listing page 
                 // alert("Updated Successfully")
                 navigate("/venue")
 
             }
             else {
-                alert(response.msg);
+                alert(data.msg);
             }
 
         } catch (error) {
@@ -314,135 +351,135 @@ export default function VenueUpdateForm() {
     return (
         <Panel bordered >
             <Form fluid>
-                <Row style={{ marginBottom: "2rem" }}>
+                <Row style={{ marginBottom: "2rem", width: "100%" }}>
                     <Col xs={8}>
                         <Form.Group controlId="venue_category_ids">
-                            <Form.ControlLabel>Category </Form.ControlLabel>
+                            <Form.Label>Category</Form.Label>
                             <Form.Control name="venue_category_ids" block value={formData.venue_category_ids} data={categories} accepter={TagPicker} onChange={(value) => { handleTagInput(value, { target: { name: "venue_category_ids" } }) }} />
                         </Form.Group>
                     </Col>
                     <Col xs={8}>
                         <Form.Group controlId="name">
-                            <Form.ControlLabel> Venue Name</Form.ControlLabel>
+                            <Form.Label>Venue Name</Form.Label>
                             <Form.Control name="name" value={formData.name} onChange={handleFormData} />
                         </Form.Group>
                     </Col>
                     <Col xs={8}>
                         <Form.Group controlId="slug">
-                            <Form.ControlLabel>Slug </Form.ControlLabel>
+                            <Form.Label>Slug</Form.Label>
                             <Form.Control name="slug" value={formData.slug} disabled />
                         </Form.Group>
                     </Col>
                 </Row>
 
-                <Row style={{ marginBottom: "2rem" }}>
+                <Row style={{ marginBottom: "2rem", width: "100%" }}>
 
                     <Col xs={8}>
                         <Form.Group controlId="city">
-                            <Form.ControlLabel>City </Form.ControlLabel>
+                            <Form.Label>City</Form.Label>
                             <Form.Control name="city_id" block data={cities} accepter={SelectPicker} virtualized value={formData.city_id} onChange={(value, event) => handleFormData(value, { target: { name: "city_id" } })} />
                         </Form.Group>
                     </Col>
                     <Col xs={8}>
                         <Form.Group controlId="location_id">
-                            <Form.ControlLabel>Locality </Form.ControlLabel>
+                            <Form.Label>Locality</Form.Label>
                             <Form.Control name="location_id" block data={localities} virtualized accepter={SelectPicker} value={formData.location_id} onChange={(value, event) => handleFormData(value, { target: { name: "location_id" } })} />
                         </Form.Group>
                     </Col>
                     <Col xs={8}>
                         <Form.Group controlId="related-location_ids">
-                            <Form.ControlLabel>Related location </Form.ControlLabel>
+                            <Form.Label>Related Location</Form.Label>
                             <Form.Control name="related_location_ids" block data={localities} virtualized accepter={TagPicker} value={formData.related_location_ids} onChange={(value, event) => handleTagInput(value, { target: { name: "related_location_ids" } })} />
                         </Form.Group>
                     </Col>
                 </Row>
 
-                <Row style={{ marginBottom: "2rem" }}>
+                <Row style={{ marginBottom: "2rem", width: "100%" }}>
                     <Form.Group controlId="venue_address">
-                        <Form.ControlLabel>Address</Form.ControlLabel>
-                        <Input name="venue_address" rows={2} as="textarea" value={formData.venue_address} onChange={handleFormData} />
+                        <Form.Label>Address</Form.Label>
+                        <Form.Control name="venue_address" rows={2} accepter={Textarea} value={formData.venue_address} onChange={handleFormData} />
                     </Form.Group>
                 </Row>
 
-                <Row className="show-grid" style={{ marginBottom: "2rem" }}>
+                <Row className="show-grid" style={{ marginBottom: "2rem", width: "100%" }}>
                     <Col xs={6}>
                         <Form.Group controlId="phone">
-                            <Form.ControlLabel>Phone </Form.ControlLabel>
+                            <Form.Label>Phone</Form.Label>
                             <Form.Control name="phone" accepter={SelectPicker} block value={formData.phone} data={PhoneNumbers} onChange={(value) => handleFormData(value, { target: { name: "phone" } })} />
 
                         </Form.Group>
                     </Col>
                     <Col xs={6}>
                         <Form.Group controlId="email">
-                            <Form.ControlLabel>Email</Form.ControlLabel>
+                            <Form.Label>Email</Form.Label>
                             <Form.Control name="email" type="email" value={formData.email} onChange={handleFormData} />
                         </Form.Group>
                     </Col>
                     <Col xs={6}>
                         <Form.Group controlId="min_capacity">
-                            <Form.ControlLabel>Min Capacity </Form.ControlLabel>
-                            <Form.Control name="min_capacity" accepter={InputNumber} value={formData.min_capacity} onChange={handleFormData} />
+                            <Form.Label>Min Capacity</Form.Label>
+                            <Form.Control name="min_capacity" accepter={NumberInput} value={formData.min_capacity} onChange={handleFormData} />
                         </Form.Group>
                     </Col>
                     <Col xs={6}>
                         <Form.Group controlId="max_capacity">
-                            <Form.ControlLabel>Max Capacity </Form.ControlLabel>
-                            <Form.Control name="max_capacity" accepter={InputNumber} value={formData.max_capacity} onChange={handleFormData} />
+                            <Form.Label>Max Capacity</Form.Label>
+                            <Form.Control name="max_capacity" accepter={NumberInput} value={formData.max_capacity} onChange={handleFormData} />
                         </Form.Group>
                     </Col>
 
 
                 </Row>
 
-                <Row className="show-grid" style={{ marginBottom: "2rem" }}>
+                <Row className="show-grid" style={{ marginBottom: "2rem", width: "100%" }}>
                     <Col xs={6}>
                         <Form.Group controlId="veg_price">
-                            <Form.ControlLabel>Veg Price/plate </Form.ControlLabel>
-                            <Form.Control name="veg_price" accepter={InputNumber} value={formData.veg_price} onChange={handleFormData} />
+                            <Form.Label>Veg Price/plate</Form.Label>
+                            <Form.Control name="veg_price" accepter={NumberInput} value={formData.veg_price} onChange={handleFormData} />
                         </Form.Group>
                     </Col>
                     <Col xs={6}>
                         <Form.Group controlId="nonveg_price">
-                            <Form.ControlLabel>Non-Veg Price/plate </Form.ControlLabel>
-                            <Form.Control name="nonveg_price" accepter={InputNumber} value={formData.nonveg_price} onChange={handleFormData} />
+                            <Form.Label>Non-Veg Price/plate</Form.Label>
+                            <Form.Control name="nonveg_price" accepter={NumberInput} value={formData.nonveg_price} onChange={handleFormData} />
                         </Form.Group>
                     </Col>
 
                     <Col xs={6}>
                         <Form.Group controlId="rental_price">
-                            <Form.ControlLabel>Rental Price </Form.ControlLabel>
-                            <Form.Control name="rental_price" accepter={InputNumber} value={formData.rental_price} onChange={handleFormData} />
+                            <Form.Label>Rental Price</Form.Label>
+                            <Form.Control name="rental_price" accepter={NumberInput} value={formData.rental_price} onChange={handleFormData} />
                         </Form.Group>
                     </Col>
                     <Col xs={6}>
                         <Form.Group controlId="rooms">
-                            <Form.ControlLabel>Room Count </Form.ControlLabel>
-                            <Form.Control name="rooms" accepter={InputNumber} value={formData.rooms} onChange={handleFormData} />
+                            <Form.Label>Room Count</Form.Label>
+                            <Form.Control name="rooms" accepter={NumberInput} value={formData.rooms} onChange={handleFormData} />
                         </Form.Group>
                     </Col>
 
 
                 </Row>
 
-                <Row className="show-grid" style={{ marginBottom: "2rem" }}>
+                <Row className="show-grid" style={{ marginBottom: "2rem", width: "100%" }}>
 
                     <Col xs={6}>
                         <Form.Group controlId="budet_id">
-                            <Form.ControlLabel>Budget </Form.ControlLabel>
+                            <Form.Label>Budget</Form.Label>
                             <Form.Control name="budget_id" accepter={SelectPicker} block data={budgets} value={formData.budget_id} onChange={(value, event) => handleFormData(value, { target: { name: "budget_id" } })} />
                         </Form.Group>
                     </Col>
 
                     <Col xs={6}>
                         <Form.Group controlId="parking_capacity">
-                            <Form.ControlLabel>Parking Capacity </Form.ControlLabel>
-                            <Form.Control name="parking_capacity" accepter={InputNumber} value={formData.parking_capacity} onChange={handleFormData} />
+                            <Form.Label>Parking Capacity</Form.Label>
+                            <Form.Control name="parking_capacity" accepter={NumberInput} value={formData.parking_capacity} onChange={handleFormData} />
                         </Form.Group>
                     </Col>
 
                     <Col xs={12}>
                         <Form.Group controlId="similar_venues_ids">
-                            <Form.ControlLabel>Similar Venue </Form.ControlLabel>
+                            <Form.Label>Similar Venue</Form.Label>
                             <Form.Control name="similar_venues_ids" data={similarVenues} block value={formData.similar_venues_ids} accepter={TagPicker} virtualized onChange={(value, event) => handleTagInput(value, { target: { name: "similar_venues_ids" } })} />
                         </Form.Group>
                     </Col>
@@ -451,26 +488,26 @@ export default function VenueUpdateForm() {
 
                 </Row>
 
-                <Row className="show-grid" style={{ marginBottom: "2rem" }}>
+                <Row className="show-grid" style={{ marginBottom: "2rem", width: "100%" }}>
                     <Col xs={12}>
                         <Form.Group controlId="meta_title">
-                            <Form.ControlLabel>Meta Title</Form.ControlLabel>
-                            <Input name="meta_title" rows={2} value={formData.meta_title} onChange={handleFormData} as="textarea" />
+                            <Form.Label>Meta Title</Form.Label>
+                            <Form.Control name="meta_title" rows={2} value={formData.meta_title} onChange={handleFormData} accepter={Textarea} />
                         </Form.Group>
                     </Col>
                     <Col xs={12}>
                         <Form.Group controlId="meta_description">
-                            <Form.ControlLabel>Meta Description</Form.ControlLabel>
-                            <Input name="meta_description" rows={2} value={formData.meta_description} onChange={handleFormData} as="textarea" />
+                            <Form.Label>Meta Description</Form.Label>
+                            <Form.Control name="meta_description" rows={2} value={formData.meta_description} onChange={handleFormData} accepter={Textarea} />
                         </Form.Group>
                     </Col>
 
                 </Row>
 
-                <Row style={{ marginBottom: "2rem" }}>
+                <Row style={{ marginBottom: "2rem", width: "100%" }}>
                     <Form.Group controlId="location_map">
-                        <Form.ControlLabel>Map URL</Form.ControlLabel>
-                        <Input name="location_map" rows={3} value={formData.location_map} onChange={handleFormData} as="textarea" />
+                        <Form.Label>Map URL</Form.Label>
+                        <Form.Control name="location_map" rows={3} value={formData.location_map} onChange={handleFormData} accepter={Textarea} />
                     </Form.Group>
                 </Row>
 
@@ -500,33 +537,33 @@ export default function VenueUpdateForm() {
                     </Panel>
                 </Row>
 
-                <Row style={{ marginBottom: "2rem" }}>
-                    <Panel bordered header={<Stack spacing={8}><span>Area Capacity</span><IconButton appearance="primary" size="xs" icon={<PlusIcon />} onClick={handleAddAreaCapacity}></IconButton></Stack>} style={{ marginBottom: "2rem" }}>
+                <Row style={{ marginBottom: "2rem", width: "100%" }}>
+                    <Panel bordered header={<Stack spacing={8}><span>Area Capacity</span><IconButton appearance="primary" size="xs" icon={<PlusIcon />} onClick={handleAddAreaCapacity}></IconButton></Stack>} style={{ marginBottom: "2rem", width: "100%" }}>
                         {
                             formData.area_capacity?.map((area, i) => {
                                 return (
-                                    <Row>
+                                    <Row key={i} style={{ marginBottom: "1rem", width: "100%" }}>
                                         <Col xs={5}>
                                             <Form.Group controlId={`name-${i}`}>
-                                                <Form.ControlLabel>Name</Form.ControlLabel>
+                                                <Form.Label>Name</Form.Label>
                                                 <Form.Control name={`name-${i}`} value={area.name} onChange={(value, event) => { handleAreaCapacityValueChange(value, event, i, "name") }} />
                                             </Form.Group>
                                         </Col>
                                         <Col xs={5}>
                                             <Form.Group controlId={`seating-${i}`}>
-                                                <Form.ControlLabel>Seating</Form.ControlLabel>
-                                                <Form.Control name={`seating-${i}`} accepter={InputNumber} value={area.seating} onChange={(value, event) => { handleAreaCapacityValueChange(value, event, i, "seating") }} />
+                                                <Form.Label>Seating</Form.Label>
+                                                <Form.Control name={`seating-${i}`} accepter={NumberInput} value={area.seating} onChange={(value, event) => { handleAreaCapacityValueChange(value, event, i, "seating") }} />
                                             </Form.Group>
                                         </Col>
                                         <Col xs={5}>
                                             <Form.Group controlId={`floating-${i}`}>
-                                                <Form.ControlLabel>Floating</Form.ControlLabel>
-                                                <Form.Control name={`floating-${i}`} accepter={InputNumber} value={area.floating} onChange={(value, event) => { handleAreaCapacityValueChange(value, event, i, "floating") }} />
+                                                <Form.Label>Floating</Form.Label>
+                                                <Form.Control name={`floating-${i}`} accepter={NumberInput} value={area.floating} onChange={(value, event) => { handleAreaCapacityValueChange(value, event, i, "floating") }} />
                                             </Form.Group>
                                         </Col>
                                         <Col xs={5}>
                                             <Form.Group controlId={`area_type-${i}`}>
-                                                <Form.ControlLabel>Area Type</Form.ControlLabel>
+                                                <Form.Label>Area Type</Form.Label>
                                                 <Form.Control name={`area_type-${i}`} block value={area.area_type} searchable={false} data={[{ label: "Indoor", value: "indoor" }, { label: "Outdoor", value: 'outdoor' }, { label: "Indoor + Outdoor", value: "indoor + outdoor" },]} accepter={SelectPicker} onChange={(value, event) => { handleAreaCapacityValueChange(value, event, i, "area_type") }} />
                                             </Form.Group>
                                         </Col>
@@ -543,17 +580,119 @@ export default function VenueUpdateForm() {
                     </Panel>
                 </Row>
 
-                <Row style={{ marginBottom: "2rem" }}>
-
+                <Row style={{ marginBottom: "2rem", width: "100%" }}>
                     <Form.Group controlId="summary">
-                        <Form.ControlLabel>Summary</Form.ControlLabel>
+                        <Form.Label>Summary</Form.Label>
                         <CKEditor
                             editor={ClassicEditor}
                             data={formData.summary || ""}
-
                             onChange={handleEditorChange}
-
-
+                            config={{
+                                licenseKey: 'GPL',
+                                toolbar: {
+                                    items: [
+                                        'undo', 'redo',
+                                        '|',
+                                        'sourceEditing',
+                                        '|',
+                                        'findAndReplace', 'selectAll',
+                                        '|',
+                                        'heading',
+                                        '|',
+                                        'fontSize', 'fontFamily', 'fontColor', 'fontBackgroundColor',
+                                        '-',
+                                        'bold', 'italic', 'underline',
+                                        {
+                                            label: 'Formatting',
+                                            icon: 'text',
+                                            items: ['strikethrough', 'subscript', 'superscript', 'code', '|', 'removeFormat']
+                                        },
+                                        '|',
+                                        'specialCharacters', 'horizontalLine', 'pageBreak',
+                                        '|',
+                                        'link', 'insertImage', 'insertTable',
+                                        {
+                                            label: 'Insert',
+                                            icon: 'plus',
+                                            items: ['highlight', 'blockQuote', 'mediaEmbed', 'codeBlock', 'htmlEmbed']
+                                        },
+                                        'alignment',
+                                        '|',
+                                        'bulletedList', 'numberedList', 'todoList',
+                                        {
+                                            label: 'Indents',
+                                            icon: 'plus',
+                                            items: ['outdent', 'indent']
+                                        }
+                                    ],
+                                    shouldNotGroupWhenFull: true
+                                },
+                                list: {
+                                    properties: {
+                                        styles: true,
+                                        startIndex: true,
+                                        reversed: true
+                                    }
+                                },
+                                plugins: [
+                                    Autoformat, BlockQuote, Bold, Essentials, FindAndReplace, Font,
+                                    Heading, Image, ImageCaption, ImageResize, ImageStyle, ImageToolbar,
+                                    ImageUpload, Indent, IndentBlock, Italic, Link, List, MediaEmbed,
+                                    Mention, Paragraph, PasteFromOffice, PictureEditing, SourceEditing,
+                                    Table, TableColumnResize, TableToolbar, TextTransformation, Underline,
+                                    HtmlEmbed, CodeBlock, RemoveFormat, Code, SpecialCharacters,
+                                    HorizontalLine, PageBreak, TodoList, Strikethrough, Subscript,
+                                    Superscript, Highlight, Alignment,
+                                ],
+                                placeholder: "Write venue summary here...",
+                                heading: {
+                                    options: [
+                                        { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
+                                        { model: 'heading1', view: 'h1', title: 'Heading 1', class: 'ck-heading_heading1' },
+                                        { model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' },
+                                        { model: 'heading3', view: 'h3', title: 'Heading 3', class: 'ck-heading_heading3' },
+                                        { model: 'heading4', view: 'h4', title: 'Heading 4', class: 'ck-heading_heading4' },
+                                        { model: 'heading5', view: 'h5', title: 'Heading 5', class: 'ck-heading_heading5' },
+                                        { model: 'heading6', view: 'h6', title: 'Heading 6', class: 'ck-heading_heading6' }
+                                    ]
+                                },
+                                image: {
+                                    resizeOptions: [
+                                        {
+                                            name: 'resizeImage:original',
+                                            label: 'Default image width',
+                                            value: null
+                                        },
+                                        {
+                                            name: 'resizeImage:50',
+                                            label: '50% page width',
+                                            value: '50'
+                                        },
+                                        {
+                                            name: 'resizeImage:75',
+                                            label: '75% page width',
+                                            value: '75'
+                                        }
+                                    ],
+                                    toolbar: [
+                                        'imageTextAlternative',
+                                        'toggleImageCaption',
+                                        '|',
+                                        'imageStyle:inline',
+                                        'imageStyle:wrapText',
+                                        'imageStyle:breakText',
+                                        '|',
+                                        'resizeImage'
+                                    ],
+                                },
+                                link: {
+                                    addTargetToExternalLinks: true,
+                                    defaultProtocol: 'https://'
+                                },
+                                table: {
+                                    contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells'],
+                                },
+                            }}
                         />
                     </Form.Group>
                 </Row>

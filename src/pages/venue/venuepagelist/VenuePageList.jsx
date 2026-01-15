@@ -17,6 +17,7 @@ import PlusIcon from '@rsuite/icons/Plus';
 // import { ActionCell } from './Cells';
 import { ActionCell } from './Cells.jsx';
 import Link from '../../../components/Link.jsx';
+import { authApi } from '../../../utils/request/apiRequest.js';
 
 export default function VenuePageList() {
 
@@ -65,15 +66,14 @@ export default function VenuePageList() {
 
                 setLoading(true)
 
-
+                
                 const url = `/api/venue/page/list?limit=${limit}&pg=${page}&search=${searchKeyword}`
 
-                let response = await fetch(url);
-                response = await response.json();
-                // console.log(response)
-                if (response.success) {
-                    setData(response.data.venuePages)
-                    setCount(response.data.count)
+                let {data} = await authApi.get(url);
+                // console.log(data)
+                if (data.success) {
+                    setData(data.data.venuePages)
+                    setCount(data.data.count)
                     setLoading(false);
                 }
                 else {
@@ -165,19 +165,10 @@ export default function VenuePageList() {
         try {
 
             const url = `/api/venue/page/delete/${_id}`
+            const {data} = await authApi.delete(url);
 
-            let response = await fetch(url, {
-                method: "DELETE",
-                headers: {
-                    "Content-type": "application/json"
-                },
-
-            })
-
-            response = await response.json();
-
-            if (response.success) {
-                // console.log(response)
+            if (data.success) {
+                // console.log(data)
                 setToggleRender(!toggleRender)
             }
 
@@ -225,7 +216,7 @@ export default function VenuePageList() {
                 sortType={sortType}
                 onSortColumn={handleSortColumn}
             >
-                <Column align="center" sortable>
+                <Column width={100} align="center" sortable>
                     <HeaderCell>Id</HeaderCell>
                     <Cell dataKey="_id" />
                 </Column>

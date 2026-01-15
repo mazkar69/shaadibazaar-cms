@@ -1,23 +1,23 @@
+import { authApi } from "./apiRequest";
 
 
-export default async function getCities(){
+export default async function getCities() {
     try {
         const url = `/api/city/list?limit=100`
-        let response = await fetch(url);
-        response = await response.json();
+        const { data } = await authApi.get(url);
 
         // console.log(response)
-        if(response.success){
-            return response.data.cities
+        if (data.success) {
+            return data.data
         }
-        else{
+        else {
             return [];
         }
-        
+
     } catch (error) {
 
         console.log(error)
         return []
-        
+
     }
 }

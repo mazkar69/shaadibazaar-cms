@@ -18,6 +18,7 @@ import Link from '../../../components/Link.jsx';
 // import MoreIcon from '@rsuite/icons/legacy/More';
 
 import { ActionCell, CustomCell, ToggleCell } from './Cells.jsx';
+import { authApi } from '../../../utils/request/apiRequest.js';
 
 export default function VenueList() {
 
@@ -74,14 +75,13 @@ export default function VenueList() {
                 const url = `/api/venue/list?limit=${limit}&pg=${page}&search=${searchKeyword}`
                 // console.log(url)
 
-                let response = await fetch(url);
-                response = await response.json();
+                let {data} = await authApi.get(url);
 
-                // console.log(response)
 
-                if (response.success) {
-                    setData(response.data.venues)
-                    setCount(response.data.count)
+
+                if (data.success) {
+                    setData(data.data.venues)
+                    setCount(data.data.count)
                     setLoading(false);
                 }
                 else {
@@ -129,17 +129,7 @@ export default function VenueList() {
     };
 
     const filteredData = () => {
-        // const filtered = data.filter(item => {
-        //     if (!item.name.includes(searchKeyword)) {
-        //         return false;
-        //     }
 
-        //     if (rating && item.rating !== rating) {
-        //         return false;
-        //     }
-
-        //     return true;
-        // });
 
         if (sortColumn && sortType) {
             return data.sort((a, b) => {
@@ -208,19 +198,10 @@ export default function VenueList() {
         try {
 
             const url = `/api/venue/delete/${_id}`
+            const {data} = await authApi.delete(url);
 
-            let response = await fetch(url, {
-                method: "DELETE",
-                headers: {
-                    "Content-type": "application/json"
-                },
-
-            })
-
-            response = await response.json();
-
-            if (response.success) {
-                // console.log(response)
+            if (data.success) {
+                // console.log(data)
                 setToggleRender(!toggleRender)
             }
 
@@ -272,7 +253,7 @@ export default function VenueList() {
                 sortType={sortType}
                 onSortColumn={handleSortColumn}
             >
-                <Column align="center" sortable>
+                <Column width={100} align="center" sortable>
                     <HeaderCell>Id</HeaderCell>
                     <Cell dataKey="_id" />
                 </Column>

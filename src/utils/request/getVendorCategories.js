@@ -1,23 +1,23 @@
+import { authApi } from "./apiRequest";
 
 
-export default async function getVendorCategories(){
+export default async function getVendorCategories() {
     try {
         const url = `/api/vendor/category/list?limit=100`
-        let response = await fetch(url);
-        response = await response.json();
+        let { data } = await authApi.get(url);
 
         // console.log(response)
-        if(response.success){
-            return response.data.vendorCategory;
+        if (data.success) {
+            return data.data.vendorCategory;
         }
-        else{
+        else {
             return [];
         }
-        
+
     } catch (error) {
 
         console.log(error)
         return []
-        
+
     }
 }

@@ -1,23 +1,24 @@
+import { authApi } from "./apiRequest";
 
 
-export default async function getVenueCategories(){
+export default async function getVenueCategories() {
     try {
         const url = `/api/venue/category/list?limit=100`
-        let response = await fetch(url);
-        response = await response.json();
+        const { data } = await authApi.get(url);
+        // console.log(data);
 
         // console.log(response)
-        if(response.success){
-            return response.data.venueCategory;
+        if (data.success) {
+            return data.data.venueCategory;
         }
-        else{
+        else {
             return [];
         }
-        
+
     } catch (error) {
 
         console.log(error)
         return []
-        
+
     }
 }

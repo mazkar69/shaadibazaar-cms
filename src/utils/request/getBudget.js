@@ -1,23 +1,22 @@
+import api from "./apiRequest";
 
 
-export default async function getBudget(){
+export default async function getBudget() {
     try {
         const url = `/api/budget/list`
-        let response = await fetch(url);
-        response = await response.json();
+        const { data } = await api.get(url);
 
-        // console.log(response)
-        if(response.success){
-            return response.data.budgets
+        if (data.success) {
+            return data.data.budgets
         }
-        else{
+        else {
             return [];
         }
-        
+
     } catch (error) {
 
         console.log(error)
         return []
-        
+
     }
 }

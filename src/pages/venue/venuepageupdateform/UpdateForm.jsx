@@ -1,7 +1,52 @@
-import { Button, Col, Form, IconButton, Input, Panel, Row, SelectPicker, Stack, TagInput } from "rsuite";
+import { Button, Col, Form, IconButton, Panel, Row, SelectPicker, Stack, TagInput, Textarea } from "rsuite";
 
 import { CKEditor } from '@ckeditor/ckeditor5-react';
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import {
+    ClassicEditor,
+    Autoformat,
+    Bold,
+    Italic,
+    Underline,
+    BlockQuote,
+    Essentials,
+    FindAndReplace,
+    Font,
+    Heading,
+    Image,
+    ImageCaption,
+    ImageResize,
+    ImageStyle,
+    ImageToolbar,
+    ImageUpload,
+    PictureEditing,
+    Indent,
+    IndentBlock,
+    Link,
+    List,
+    MediaEmbed,
+    Mention,
+    Paragraph,
+    PasteFromOffice,
+    SourceEditing,
+    Table,
+    TableColumnResize,
+    TableToolbar,
+    TextTransformation,
+    HtmlEmbed,
+    CodeBlock,
+    RemoveFormat,
+    Code,
+    SpecialCharacters,
+    HorizontalLine,
+    PageBreak,
+    TodoList,
+    Strikethrough,
+    Subscript,
+    Superscript,
+    Highlight,
+    Alignment
+} from 'ckeditor5';
+import 'ckeditor5/ckeditor5.css';
 import PlusIcon from '@rsuite/icons/Plus';
 import { useEffect, useRef, useState } from "react";
 import CloseIcon from '@rsuite/icons/Close';
@@ -10,6 +55,7 @@ import getCities from "../../../utils/request/getCities.js";
 import getVenueCategories from "../../../utils/request/getVenueCategories.js";
 import getLocalities from "../../../utils/request/getLocalities.js";
 import { useNavigate, useParams } from "react-router";
+import { authApi } from "../../../utils/request/apiRequest.js";
 
 export default function UpdateForm() {
 
@@ -54,13 +100,10 @@ export default function UpdateForm() {
     useEffect(()=>{
         const getVenuePageDetails = async()=>{
             try {
-                let response = await fetch(`/api/venue/page/list/?_id=${_id}`)
-                response = await response.json();
-                // console.log( "response " + response)
-                if(response.success){
-                    const data = response.data.venuePages[0];
-                    setFormData(data)
-                    
+                const { data } = await authApi.get(`/api/venue/page/list/?_id=${_id}`)
+                if(data.success){
+                    const page = data.data.venuePages[0];
+                    setFormData(page)
 
                 }else{
                     //reload the browser
@@ -221,24 +264,16 @@ export default function UpdateForm() {
         try {
                 setLoading(true)
 
-                let response = await fetch(`/api/venue/page/update/${_id}`,{
-                method:"POST",
-                headers:{
-                    "Content-Type":"application/json"
-                },
-                body:JSON.stringify({...formData,url})
-            })
+                const { data } = await authApi.post(`/api/venue/page/update/${_id}`,{...formData,url})
 
-            response = await response.json();
-
-            if(response.success){
+            if(data.success){
                 //Redirect to the listing page 
                 // alert("Updated Successfully")
                 navigate("/venue-page")
 
             }
             else{
-                alert(response.msg);
+                alert(data.msg);
             }
             
         } catch (error) {
@@ -253,66 +288,66 @@ export default function UpdateForm() {
     return (
         <Panel bordered >
             <Form fluid>
-                <Row style={{ marginBottom: "2rem" }}>
+                <Row style={{ marginBottom: "2rem", width: "100%" }}>
                     <Col xs={8}>
                         <Form.Group controlId="category">
-                            <Form.ControlLabel>Category </Form.ControlLabel>
+                            <Form.Label>Category</Form.Label>
                             <Form.Control name="category" block data={categories} accepter={SelectPicker} value={formData.category} onChange={(value,event)=>handleFormData(value,{target:{name:"category"}})}/>
                         </Form.Group>
                     </Col>
                     <Col xs={8}>
                         <Form.Group controlId="city">
-                            <Form.ControlLabel>City </Form.ControlLabel>
+                            <Form.Label>City</Form.Label>
                             <Form.Control name="city" block data={cities} accepter={SelectPicker} value={formData.city} onChange={(value,event)=>handleFormData(value,{target:{name:"city"}})}/>
                         </Form.Group>
                     </Col>
                     <Col xs={8}>
                         <Form.Group controlId="locality">
-                            <Form.ControlLabel>Locality </Form.ControlLabel>
+                            <Form.Label>Locality</Form.Label>
                             <Form.Control name="location" block data={localities} accepter={SelectPicker} value={formData.location} onChange={(value,event)=>handleFormData(value,{target:{name:"location"}})} />
                         </Form.Group>
                     </Col>
                 </Row>
 
-                <Row className="show-grid" style={{ marginBottom: "2rem" }}>
+                <Row className="show-grid" style={{ marginBottom: "2rem", width: "100%" }}>
                     <Col xs={12}>
                         <Form.Group controlId="meta_title">
-                            <Form.ControlLabel>Meta Title</Form.ControlLabel>
+                            <Form.Label>Meta Title</Form.Label>
                             <Form.Control name="meta_title" value={formData.meta_title} onChange={handleFormData} />
                         </Form.Group>
                     </Col>
                     <Col xs={12}>
                         <Form.Group controlId="meta_keyword">
-                            <Form.ControlLabel>Meta Keyword</Form.ControlLabel>
-                            <Form.Control name="meta_keyword" block accepter={TagInput}  value={formData.meta_keyword} onChange={handleTagInput}/>
+                            <Form.Label>Meta Keyword</Form.Label>
+                            <Form.Control name="meta_keyword" block accepter={TagInput} value={formData.meta_keyword} onChange={handleTagInput}/>
                         </Form.Group>
                     </Col>
 
                 </Row>
 
-                <Row style={{ marginBottom: "2rem" }}>
+                <Row style={{ marginBottom: "2rem", width: "100%" }}>
                     <Form.Group controlId="meta_description">
-                        <Form.ControlLabel>Meta Description</Form.ControlLabel>
-                        <Input name="meta_description" rows={4} value={formData.meta_description} onChange={handleFormData} as="textarea"  />
+                        <Form.Label>Meta Description</Form.Label>
+                        <Form.Control name="meta_description" rows={4} value={formData.meta_description} onChange={handleFormData} accepter={Textarea}  />
                     </Form.Group>
                 </Row>
 
 
-                <Row style={{ marginBottom: "2rem" }}>
-                    <Panel bordered header={<Stack spacing={8}><span>FAQs</span><IconButton appearance="primary" size="xs" icon={<PlusIcon />} onClick={handleAddFaqs}></IconButton></Stack>} style={{ marginBottom: "2rem" }}>
+                <Row style={{ marginBottom: "2rem", width: "100%" }}>
+                    <Panel bordered header={<Stack spacing={8}><span>FAQs</span><IconButton appearance="primary" size="xs" icon={<PlusIcon />} onClick={handleAddFaqs}></IconButton></Stack>} style={{ marginBottom: "2rem", width: "100%" }}>
                         {
                             formData.faqs?.map((faq, i) => {
                                 return (
-                                    <Row>
+                                    <Row key={i} style={{ marginBottom: "1rem", width: "100%" }}>
                                         <Col xs={11}>
                                             <Form.Group controlId={`question-${i}`}>
-                                                <Form.ControlLabel>Question</Form.ControlLabel>
+                                                <Form.Label>Question</Form.Label>
                                                 <Form.Control name={`question-${i}`} value={faq.question} onChange={(value,event)=>{handleFaqsValueChange(value,event,i,"question")}} />
                                             </Form.Group>
                                         </Col>
                                         <Col xs={11}>
                                             <Form.Group controlId={`answer-${i}`}>
-                                                <Form.ControlLabel>Answer</Form.ControlLabel>
+                                                <Form.Label>Answer</Form.Label>
                                                 <Form.Control name={`answer-${i}`} value={faq.answer} onChange={(value,event)=>{handleFaqsValueChange(value,event,i,"answer")}}/>
                                             </Form.Group>
                                         </Col>
@@ -327,17 +362,122 @@ export default function UpdateForm() {
                     </Panel>
                 </Row>
 
-                <Row style={{ marginBottom: "2rem" }}>
+                <Row style={{ marginBottom: "2rem", width: "100%" }}>
 
                     <Form.Group controlId="textarea">
-                        <Form.ControlLabel>Footer Content</Form.ControlLabel>
+                        <Form.Label>Footer Content</Form.Label>
                         <CKEditor
                             editor={ClassicEditor}
-                            data={formData.footer_caption}
+                            data={formData.footer_caption || ""}
                             onChange={(event,editor)=>{
                                 handleEditorChange(event,editor);
                             }}
-
+                            config={{
+                                licenseKey: 'GPL',
+                                toolbar: {
+                                    items: [
+                                        'undo', 'redo',
+                                        '|',
+                                        'sourceEditing',
+                                        '|',
+                                        'findAndReplace', 'selectAll',
+                                        '|',
+                                        'heading',
+                                        '|',
+                                        'fontSize', 'fontFamily', 'fontColor', 'fontBackgroundColor',
+                                        '-',
+                                        'bold', 'italic', 'underline',
+                                        {
+                                            label: 'Formatting',
+                                            icon: 'text',
+                                            items: ['strikethrough', 'subscript', 'superscript', 'code', '|', 'removeFormat']
+                                        },
+                                        '|',
+                                        'specialCharacters', 'horizontalLine', 'pageBreak',
+                                        '|',
+                                        'link', 'insertImage', 'insertTable',
+                                        {
+                                            label: 'Insert',
+                                            icon: 'plus',
+                                            items: ['highlight', 'blockQuote', 'mediaEmbed', 'codeBlock', 'htmlEmbed']
+                                        },
+                                        'alignment',
+                                        '|',
+                                        'bulletedList', 'numberedList', 'todoList',
+                                        {
+                                            label: 'Indents',
+                                            icon: 'plus',
+                                            items: ['outdent', 'indent']
+                                        }
+                                    ],
+                                    shouldNotGroupWhenFull: true
+                                },
+                                list: {
+                                    properties: {
+                                        styles: true,
+                                        startIndex: true,
+                                        reversed: true
+                                    }
+                                },
+                                plugins: [
+                                    Autoformat, BlockQuote, Bold, Essentials, FindAndReplace, Font,
+                                    Heading, Image, ImageCaption, ImageResize, ImageStyle, ImageToolbar,
+                                    ImageUpload, Indent, IndentBlock, Italic, Link, List, MediaEmbed,
+                                    Mention, Paragraph, PasteFromOffice, PictureEditing, SourceEditing,
+                                    Table, TableColumnResize, TableToolbar, TextTransformation, Underline,
+                                    HtmlEmbed, CodeBlock, RemoveFormat, Code, SpecialCharacters,
+                                    HorizontalLine, PageBreak, TodoList, Strikethrough, Subscript,
+                                    Superscript, Highlight, Alignment,
+                                ],
+                                placeholder: "Write footer content here...",
+                                heading: {
+                                    options: [
+                                        { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
+                                        { model: 'heading1', view: 'h1', title: 'Heading 1', class: 'ck-heading_heading1' },
+                                        { model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' },
+                                        { model: 'heading3', view: 'h3', title: 'Heading 3', class: 'ck-heading_heading3' },
+                                        { model: 'heading4', view: 'h4', title: 'Heading 4', class: 'ck-heading_heading4' },
+                                        { model: 'heading5', view: 'h5', title: 'Heading 5', class: 'ck-heading_heading5' },
+                                        { model: 'heading6', view: 'h6', title: 'Heading 6', class: 'ck-heading_heading6' }
+                                    ]
+                                },
+                                image: {
+                                    resizeOptions: [
+                                        {
+                                            name: 'resizeImage:original',
+                                            label: 'Default image width',
+                                            value: null
+                                        },
+                                        {
+                                            name: 'resizeImage:50',
+                                            label: '50% page width',
+                                            value: '50'
+                                        },
+                                        {
+                                            name: 'resizeImage:75',
+                                            label: '75% page width',
+                                            value: '75'
+                                        }
+                                    ],
+                                    toolbar: [
+                                        'imageTextAlternative',
+                                        'toggleImageCaption',
+                                        '|',
+                                        'imageStyle:inline',
+                                        'imageStyle:wrapText',
+                                        'imageStyle:breakText',
+                                        '|',
+                                        'resizeImage'
+                                    ],
+                                },
+                                link: {
+                                    addTargetToExternalLinks: true,
+                                    defaultProtocol: 'https://'
+                                },
+                                table: {
+                                    contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells'],
+                                },
+                            }}
                         />
                     </Form.Group>
                 </Row>
