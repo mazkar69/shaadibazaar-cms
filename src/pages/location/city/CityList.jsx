@@ -19,6 +19,7 @@ import { useEffect, useState } from "react";
 import SearchIcon from '@rsuite/icons/Search';
 import PlusIcon from '@rsuite/icons/Plus';
 import { ActionCell,ToggleCell } from './Cells';
+import { authApi } from '../../../utils/request/apiRequest';
 
 
 export default function CityList() {
@@ -76,20 +77,16 @@ export default function CityList() {
     useEffect(() => {
 
         try {
-
             async function getData() {
-
                 setLoading(true)
+                const url = `/api/city/admin/list?limit=${limit}&pg=${page}&search=${searchKeyword}`
+                const {data} = await authApi(url);
 
 
-                const url = `/api/city/list?limit=${limit}&pg=${page}&search=${searchKeyword}`
-
-                let response = await fetch(url);
-                response = await response.json();
                 // console.log(response)
-                if (response.success) {
-                    setData(response.data.cities)
-                    setCount(response.data.count)
+                if (data.success) {
+                    setData(data.data.cities)
+                    setCount(data.data.count)
                     setLoading(false);
                     // console.log("data saved")
                 }
@@ -97,7 +94,6 @@ export default function CityList() {
 
                     setLoading(false)
                 }
-
 
             }
 
@@ -181,19 +177,10 @@ export default function CityList() {
         
         try {
 
-            const url = `/api/city/delete/${_id}`
-
-            let response = await fetch(url, {
-                method: "DELETE",
-                headers: {
-                    "Content-type": "application/json"
-                },
-
-            })
-
-            response = await response.json();
-
-            if (response.success) {
+            const url = `/api/city/admin/delete/${_id}`
+            const {data} = await authApi.delete(url);
+ 
+            if (data.success) {
                 // console.log(response)
                 setToggleRender(!toggleRender)
             }
@@ -207,21 +194,10 @@ export default function CityList() {
     const handleAddCity = async()=>{
         try {
 
-            const url = `/api/city/create`
+            const url = `/api/city/admin/create`
+            const {data} = await authApi.post(url,{name,slug});
 
-            let response = await fetch(url, {
-                method: "POST",
-                headers: {
-                    "Content-type": "application/json"
-                },
-                body:JSON.stringify({name,slug})
-
-            })
-
-            response = await response.json();
-
-            if (response.success) {
-                // console.log(response)
+            if (data.success) {
                 setToggleRender(!toggleRender)
                 setOpenModal(false);
                 setName("")
@@ -238,20 +214,10 @@ export default function CityList() {
     const handleUpdateCity = async()=>{
         try {
 
-            const url = `/api/city/update/${id}`
+            const url = `/api/city/admin/update/${id}`
+            const {data} = await authApi.post(url,{name,slug});
 
-            let response = await fetch(url, {
-                method: "POST",
-                headers: {
-                    "Content-type": "application/json"
-                },
-                body:JSON.stringify({name,slug})
-
-            })
-
-            response = await response.json();
-
-            if (response.success) {
+            if (data.success) {
                 // console.log(response)
                 setToggleRender(!toggleRender)
                 setOpenModal(false);
@@ -271,19 +237,11 @@ export default function CityList() {
 
         try {
 
-            const url = `/api/city/update/${_id}`
+            const url = `/api/city/admin/update/${_id}`
+            const {data} = await authApi.post(url,{[name]:isChecked});
+           
 
-            let response = await fetch(url,{
-                method:"POST",
-                headers:{
-                    "Content-type": "application/json"
-                },
-                body:JSON.stringify({[name]:isChecked})
-            })
-
-            response = await response.json();
-
-            if(response.success){
+            if(data.success){
                 // console.log(response)
                 setToggleRender(!toggleRender)
             }
@@ -328,7 +286,7 @@ export default function CityList() {
                 sortType={sortType}
                 onSortColumn={handleSortColumn}
             >
-                <Column align="center" sortable>
+                <Column width={100} align="center" sortable>
                     <HeaderCell>Id</HeaderCell>
                     <Cell dataKey="_id" />
                 </Column>

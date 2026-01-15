@@ -23,6 +23,7 @@ import PlusIcon from '@rsuite/icons/Plus';
 import { ActionCell, ToggleCell } from './Cells';
 import getCities from '../../../utils/request/getCities';
 import getLocalities from '../../../utils/request/getLocalities';
+import { authApi } from '../../../utils/request/apiRequest';
 
 
 export default function LocalityList() {
@@ -140,14 +141,13 @@ export default function LocalityList() {
                 setLoading(true)
 
 
-                const url = `/api/location/list?limit=${limit}&pg=${page}&search=${searchKeyword}`
+                const url = `/api/location/admin/list?limit=${limit}&pg=${page}&search=${searchKeyword}`
+                const {data} = await authApi(url);
 
-                let response = await fetch(url);
-                response = await response.json();
-                // console.log(response)
-                if (response.success) {
-                    setData(response.data.locations)
-                    setCount(response.data.count)
+                
+                if (data.success) {
+                    setData(data.data.locations)
+                    setCount(data.data.count)
                     setLoading(false);
                 }
                 else {
@@ -238,19 +238,12 @@ export default function LocalityList() {
         }
         try {
 
-            const url = `/api/location/delete/${_id}`
+            const url = `/api/location/admin/delete/${_id}`
+            const {data} = await authApi.delete(url);
 
-            let response = await fetch(url, {
-                method: "DELETE",
-                headers: {
-                    "Content-type": "application/json"
-                },
+   
 
-            })
-
-            response = await response.json();
-
-            if (response.success) {
+            if (data.success) {
                 // console.log(response)
                 setToggleRender(!toggleRender)
             }
@@ -264,21 +257,12 @@ export default function LocalityList() {
     const handleCreateLocation = async () => {
         try {
 
-            const url = `/api/location/create`
+            const url = `/api/location/admin/create`
+            const {data} = await authApi.post(url, { city_id:cityId, name, slug,is_group:isGroup,locality_ids:localityList });
 
-            let response = await fetch(url, {
-                method: "POST",
-                headers: {
-                    "Content-type": "application/json"
-                },
-                body: JSON.stringify({ city_id:cityId, name, slug,is_group:isGroup,locality_ids:localityList })
-
-            })
-
-            response = await response.json();
-            // console.log(response)
-            if (response.success) {
-                // console.log(response)
+      
+         
+            if (data.success) {
                 setToggleRender(!toggleRender)
                 setOpenModal(false);
             }
@@ -295,19 +279,10 @@ export default function LocalityList() {
 
         try {
 
-            const url = `/api/location/update/${_id}`
+            const url = `/api/location/admin/update/${_id}`
+            const {data} = await authApi.post(url, { [name]: isChecked });
 
-            let response = await fetch(url, {
-                method: "POST",
-                headers: {
-                    "Content-type": "application/json"
-                },
-                body: JSON.stringify({ [name]: isChecked })
-            })
-
-            response = await response.json();
-
-            if (response.success) {
+            if (data.success) {
                 // console.log(response)
                 setToggleRender(!toggleRender)
             }
@@ -345,20 +320,11 @@ export default function LocalityList() {
     const handleUpdateLocation = async()=>{
         try {
 
-            const url = `/api/location/update/${id}`
+            const url = `/api/location/admin/update/${id}`
+            const {data} = await authApi.post(url, { city_id:cityId, name, slug,is_group:isGroup,locality_ids:localityList });
 
-            let response = await fetch(url, {
-                method: "POST",
-                headers: {
-                    "Content-type": "application/json"
-                },
-                body: JSON.stringify({ city_id:cityId, name, slug,is_group:isGroup,locality_ids:localityList })
 
-            })
-
-            response = await response.json();
-
-            if (response.success) {
+            if (data.success) {
                 // console.log(response)
                 setToggleRender(!toggleRender)
                 setOpenModal(false);
@@ -400,7 +366,7 @@ export default function LocalityList() {
                 sortType={sortType}
                 onSortColumn={handleSortColumn}
             >
-                <Column align="center" sortable>
+                <Column align="center" sortable width={100}>
                     <HeaderCell>Id</HeaderCell>
                     <Cell dataKey="_id" />
                 </Column>
