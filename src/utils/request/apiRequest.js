@@ -11,12 +11,8 @@ export default api;
 
 export const authApi = axios.create({
     baseURL: import.meta.env.VITE_BACKEND_URI,
-    headers: {
-        'Content-Type': 'application/json',
-    },
-    // withCredentials: true,  // Enable this if your API requires cookies or other credentials to be sent along with the request
-    // 'Access-Control-Allow-Origin': '*',  // Adjust this based on your server's CORS poli
-    });
+    withCredentials: false,  // Disable credentials for CORS simplicity
+});
 
 
 export const authMultiFormApi = axios.create({
@@ -25,19 +21,25 @@ export const authMultiFormApi = axios.create({
 
 
 authApi.interceptors.request.use(config => {
-    config.headers['authorization'] = `Bearer ${localStorage.getItem("x4976gtylCC")}`
-    return config
+    const token = localStorage.getItem("x4976gtylCC");
+    if (token) {
+        config.headers['Authorization'] = `Bearer ${token}`;
+    }
+    return config;
 }, error => {
-    return Promise.reject(error)
-})
+    return Promise.reject(error);
+});
 
 authMultiFormApi.interceptors.request.use(config => {
-    config.headers['Authorization'] = `Bearer ${localStorage.getItem("x4976gtylCC")}`
-    config.headers["content-type"] = "multipart/form-data"
-    return config
+    const token = localStorage.getItem("x4976gtylCC");
+    if (token) {
+        config.headers['Authorization'] = `Bearer ${token}`;
+    }
+    config.headers["Content-Type"] = "multipart/form-data";
+    return config;
 }, error => {
-    return Promise.reject(error)
-})
+    return Promise.reject(error);
+});
 
 
 // ----------------------------------------------------------------

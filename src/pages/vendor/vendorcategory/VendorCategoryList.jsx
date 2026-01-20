@@ -10,15 +10,16 @@ import {
     Button,
     Row,
     Col,
-    Modal
+    Modal,
+
 } from 'rsuite';
 
 
 import { useEffect, useState } from "react";
 import SearchIcon from '@rsuite/icons/Search';
 import PlusIcon from '@rsuite/icons/Plus';
-// import { ActionCell } from './Cells';
 import { ActionCell } from './Cells.jsx';
+import { authApi } from '../../../utils/request/apiRequest.js';
 
 
 export default function VendorCategoryList() {
@@ -89,12 +90,11 @@ export default function VendorCategoryList() {
 
                 const url = `/api/vendor/category/list?limit=${limit}&pg=${page}&search=${searchKeyword}`
 
-                let response = await fetch(url);
-                response = await response.json();
-                // console.log(response)
-                if (response.success) {
-                    setData(response.data.vendorCategory)
-                    setCount(response.data.count)
+                let { data } = await authApi.get(url);
+
+                if (data.success) {
+                    setData(data.data.vendorCategory)
+                    setCount(data.data.count)
                     setLoading(false);
                 }
                 else {
@@ -185,19 +185,9 @@ export default function VendorCategoryList() {
         try {
 
             const url = `/api/vendor/category/delete/${_id}`
+            const {data} = await authApi.delete(url);
 
-            let response = await fetch(url, {
-                method: "DELETE",
-                headers: {
-                    "Content-type": "application/json"
-                },
-
-            })
-
-            response = await response.json();
-
-            if (response.success) {
-                // console.log(response)
+            if (data.success) {
                 setToggleRender(!toggleRender)
             }
 
@@ -211,20 +201,11 @@ export default function VendorCategoryList() {
         try {
 
             const url = `/api/vendor/category/create`
+            const {data} = await authApi.post(url, { name, slug });
 
-            let response = await fetch(url, {
-                method: "POST",
-                headers: {
-                    "Content-type": "application/json"
-                },
-                body: JSON.stringify({ name, slug })
 
-            })
 
-            response = await response.json();
-
-            if (response.success) {
-                // console.log(response)
+            if (data.success) {
                 setToggleRender(!toggleRender)
                 setOpenModal(false);
                 setName("")
@@ -232,7 +213,7 @@ export default function VendorCategoryList() {
             }
 
         } catch (error) {
-            console.log("Error from handleAddVenueCategory" + error)
+            console.log("Error from handleAddCategory" + error)
 
         }
     }
@@ -242,20 +223,9 @@ export default function VendorCategoryList() {
         try {
 
             const url = `/api/vendor/category/update/${id}`
-
-            let response = await fetch(url, {
-                method: "POST",
-                headers: {
-                    "Content-type": "application/json"
-                },
-                body: JSON.stringify({ name, slug })
-
-            })
-
-            response = await response.json();
-
-            if (response.success) {
-                // console.log(response)
+            const {data} = await authApi.post(url,{ name, slug})
+           
+            if (data.success) {
                 setToggleRender(!toggleRender)
                 setOpenModal(false);
                 setName("")
@@ -302,7 +272,7 @@ export default function VendorCategoryList() {
                 sortType={sortType}
                 onSortColumn={handleSortColumn}
             >
-                <Column align="center" sortable>
+                <Column width={100} align="center" sortable>
                     <HeaderCell>Id</HeaderCell>
                     <Cell dataKey="_id" />
                 </Column>

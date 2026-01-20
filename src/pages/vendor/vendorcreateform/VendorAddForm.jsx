@@ -1,7 +1,9 @@
-import { Button, Col, Form, IconButton, Input, InputNumber, Panel, Row, SelectPicker, Stack, TagPicker } from "rsuite";
+import { Button, Col, Form, Grid, IconButton, NumberInput, Panel, Row, SelectPicker, Stack, TagPicker, Textarea } from "rsuite";
 
 import { CKEditor } from '@ckeditor/ckeditor5-react';
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import { ClassicEditor, Essentials, Paragraph, Bold, Italic } from 'ckeditor5';
+import 'ckeditor5/ckeditor5.css';
+
 import PlusIcon from '@rsuite/icons/Plus';
 import { useEffect, useState } from "react";
 import CloseIcon from '@rsuite/icons/Close';
@@ -12,6 +14,8 @@ import PhoneNumbers from "../../../utils/json/phoneNumber.json"
 import { useNavigate } from "react-router";
 import getVendors from "../../../utils/request/getVendors.js";
 import getVendorCategories from "../../../utils/request/getVendorCategories.js";
+import { authApi } from '../../../utils/request/apiRequest.js';
+import toast from 'react-hot-toast';
 // console.log(VenueFeatureData)
 
 export default function VendorAddForm() {
@@ -208,7 +212,7 @@ export default function VendorAddForm() {
         // console.log(formData)
 
         if (!formData.city_id || !formData.location_id || !formData.brand_name) {
-            alert("Select the required field")
+            toast.error("Please fill all required fields")
             return
         }
 
@@ -216,27 +220,21 @@ export default function VendorAddForm() {
 
         try {
             setLoading(true)
-            let response = await fetch("/api/vendor/create", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(formData)
-            })
 
-            response = await response.json();
+            const {data} = await authApi.post("/api/vendor/create", formData);
 
-            if (response.success) {
+            if (data.success) {
+                toast.success("Vendor created successfully")
                 //Redirect to the listing page 
                 navigate("/vendor")
             }
             else {
-                alert(response.msg);
+                toast.error(data.message || "Failed to create vendor");
             }
 
         } catch (error) {
             console.log("Error is " + error)
-
+            toast.error("An error occurred while creating vendor")
 
         } finally {
             setLoading(false)
@@ -246,188 +244,165 @@ export default function VendorAddForm() {
     return (
         <Panel bordered >
             <Form fluid>
-                <Row style={{ marginBottom: "2rem" }}>
+                <Row style={{ marginBottom: "2rem", width: "100%" }}>
                     <Col xs={8}>
-                        <Form.Group controlId="venue_category_ids">
-                            <Form.ControlLabel>Category </Form.ControlLabel>
+                        <Form.Group controlId="vendor_category_id">
+                            <Form.Label>Category</Form.Label>
                             <Form.Control name="vendor_category_id" value={formData.vendor_category_id} block data={categories} accepter={SelectPicker} onChange={(value) => { handleFormData(value, { target: { name: "vendor_category_id" } }) }} />
                         </Form.Group>
                     </Col>
                     <Col xs={8}>
-                        <Form.Group controlId="name">
-                            <Form.ControlLabel> Brand Name</Form.ControlLabel>
+                        <Form.Group controlId="brand_name">
+                            <Form.Label>Brand Name</Form.Label>
                             <Form.Control name="brand_name" value={formData.brand_name} onChange={handleFormData} />
                         </Form.Group>
                     </Col>
                     <Col xs={8}>
                         <Form.Group controlId="slug">
-                            <Form.ControlLabel>Slug </Form.ControlLabel>
+                            <Form.Label>Slug</Form.Label>
                             <Form.Control name="slug" value={formData.slug} disabled />
                         </Form.Group>
                     </Col>
                 </Row>
 
-                <Row style={{ marginBottom: "2rem" }}>
-
-                    <Col xs={6}>
+                <Row style={{ marginBottom: "2rem", width: "100%" }}>
+                    <Col xs={8}>
                         <Form.Group controlId="city">
-                            <Form.ControlLabel>City </Form.ControlLabel>
+                            <Form.Label>City</Form.Label>
                             <Form.Control name="city_id" block data={cities} accepter={SelectPicker} virtualized value={formData.city_id} onChange={(value, event) => handleFormData(value, { target: { name: "city_id" } })} />
                         </Form.Group>
                     </Col>
-                    <Col xs={6}>
+                    <Col xs={8}>
                         <Form.Group controlId="location_id">
-                            <Form.ControlLabel>Locality </Form.ControlLabel>
+                            <Form.Label>Locality</Form.Label>
                             <Form.Control name="location_id" block data={localities} virtualized accepter={SelectPicker} value={formData.location_id} onChange={(value, event) => handleFormData(value, { target: { name: "location_id" } })} />
                         </Form.Group>
                     </Col>
-
-                    <Col xs={12}>
+                    <Col xs={8}>
                         <Form.Group controlId="similar_vendor_ids">
-                            <Form.ControlLabel>Similar Vendor </Form.ControlLabel>
+                            <Form.Label>Similar Vendor</Form.Label>
                             <Form.Control name="similar_vendor_ids" data={similarVendors} block value={formData.similar_vendor_ids} accepter={TagPicker} virtualized onChange={(value, event) => handleTagInput(value, { target: { name: "similar_vendor_ids" } })} />
                         </Form.Group>
                     </Col>
-
                 </Row>
 
-                <Row style={{ marginBottom: "2rem" }}>
-
-                    <Form.Group controlId="venue_address">
-                        <Form.ControlLabel>Address</Form.ControlLabel>
-                        <Input name="vendor_address" rows={5} as="textarea" value={formData.vendor_address} onChange={handleFormData} />
+                <Row style={{ marginBottom: "2rem", width: "100%" }}>
+                    <Form.Group controlId="vendor_address">
+                        <Form.Label>Address</Form.Label>
+                        <Form.Control name="vendor_address" rows={2} accepter={Textarea} value={formData.vendor_address} onChange={handleFormData} />
                     </Form.Group>
-
                 </Row>
 
-                <Row className="show-grid" style={{ marginBottom: "2rem" }}>
+                <Row className="show-grid" style={{ marginBottom: "2rem", width: "100%" }}>
                     <Col xs={6}>
                         <Form.Group controlId="phone">
-                            <Form.ControlLabel>Phone </Form.ControlLabel>
+                            <Form.Label>Phone</Form.Label>
                             <Form.Control name="phone" accepter={SelectPicker} block value={formData.phone} data={PhoneNumbers} onChange={(value) => handleFormData(value, { target: { name: "phone" } })} />
                         </Form.Group>
                     </Col>
                     <Col xs={6}>
                         <Form.Group controlId="email">
-                            <Form.ControlLabel>Email</Form.ControlLabel>
+                            <Form.Label>Email</Form.Label>
                             <Form.Control name="email" type="email" value={formData.email} onChange={handleFormData} />
                         </Form.Group>
                     </Col>
                     <Col xs={6}>
                         <Form.Group controlId="package_price">
-                            <Form.ControlLabel>Package Price </Form.ControlLabel>
-                            <Form.Control name="package_price" accepter={InputNumber} value={formData.package_price} onChange={handleFormData} />
+                            <Form.Label>Package Price</Form.Label>
+                            <Form.Control name="package_price" accepter={NumberInput} value={formData.package_price} onChange={handleFormData} />
                         </Form.Group>
                     </Col>
                     <Col xs={6}>
                         <Form.Group controlId="yrs_exp">
-                            <Form.ControlLabel>Year Of Exp. </Form.ControlLabel>
-                            <Form.Control name="yrs_exp" accepter={InputNumber} value={formData.yrs_exp} onChange={handleFormData} />
+                            <Form.Label>Years of Experience</Form.Label>
+                            <Form.Control name="yrs_exp" accepter={NumberInput} value={formData.yrs_exp} onChange={handleFormData} />
                         </Form.Group>
                     </Col>
-
-
-
                 </Row>
 
 
-                <Row className="show-grid" style={{ marginBottom: "2rem" }}>
+                <Row className="show-grid" style={{ marginBottom: "2rem", width: "100%" }}>
                     <Col xs={12}>
                         <Form.Group controlId="meta_title">
-                            <Form.ControlLabel>Meta Title</Form.ControlLabel>
-                            <Input name="meta_title" rows={2} value={formData.meta_title} onChange={handleFormData} as="textarea" />
+                            <Form.Label>Meta Title</Form.Label>
+                            <Form.Control name="meta_title" rows={2} value={formData.meta_title} onChange={handleFormData} accepter={Textarea} />
                         </Form.Group>
                     </Col>
                     <Col xs={12}>
                         <Form.Group controlId="meta_description">
-                            <Form.ControlLabel>Meta Description</Form.ControlLabel>
-                            <Input name="meta_description" rows={2} value={formData.meta_description} onChange={handleFormData} as="textarea" />
+                            <Form.Label>Meta Description</Form.Label>
+                            <Form.Control name="meta_description" rows={2} value={formData.meta_description} onChange={handleFormData} accepter={Textarea} />
                         </Form.Group>
                     </Col>
-
                 </Row>
 
 
-                <Row style={{ marginBottom: "2rem" }}>
-                    <Panel bordered header={<Stack spacing={8}><span>Package Option</span><IconButton appearance="primary" size="xs" icon={<PlusIcon />} onClick={handleAddPackageOptionCapacity}></IconButton></Stack>} style={{ marginBottom: "2rem" }}>
+                <Row style={{ marginBottom: "2rem", width: "100%" }}>
+                    <Panel bordered header={<Stack spacing={8}><span>Package Options</span><IconButton appearance="primary" size="xs" icon={<PlusIcon />} onClick={handleAddPackageOptionCapacity}></IconButton></Stack>} style={{ marginBottom: "2rem", width: "100%" }}>
                         {
                             formData.package_option?.map((pack, i) => {
                                 return (
-                                    <Row>
-                                        <Col xs={10}>
+                                    <Row key={i} style={{ marginBottom: "1rem", width: "100%" }}>
+                                        <Col xs={5}>
                                             <Form.Group controlId={`package_name-${i}`}>
-                                                <Form.ControlLabel>Package name</Form.ControlLabel>
+                                                <Form.Label>Package Name</Form.Label>
                                                 <Form.Control name={`package_name-${i}`} value={pack.package_name} onChange={(value, event) => { handlePackageOptionCapacityValueChange(value, event, i, "package_name") }} />
                                             </Form.Group>
                                         </Col>
-                                        <Col xs={10}>
+                                        <Col xs={5}>
                                             <Form.Group controlId={`package_price-${i}`}>
-                                                <Form.ControlLabel>Package price</Form.ControlLabel>
-                                                <Form.Control name={`package_price-${i}`} accepter={InputNumber} value={pack.package_price} onChange={(value, event) => { handlePackageOptionCapacityValueChange(value, event, i, "package_price") }} />
+                                                <Form.Label>Package Price</Form.Label>
+                                                <Form.Control name={`package_price-${i}`} accepter={NumberInput} value={pack.package_price} onChange={(value, event) => { handlePackageOptionCapacityValueChange(value, event, i, "package_price") }} />
                                             </Form.Group>
                                         </Col>
-
-                                        <Col xs={4}>
+                                        <Col xs={2}>
                                             <Icon as={CloseIcon} size="2em" style={{ marginTop: "2rem", cursor: "pointer" }} onClick={() => { handleRemovePackageOption(i) }} />
                                         </Col>
                                     </Row>
                                 )
                             })
                         }
-
                     </Panel>
                 </Row>
 
 
-                <Row style={{ marginBottom: "2rem" }}>
-
+                <Row style={{ marginBottom: "2rem", width: "100%" }}>
                     <Form.Group controlId="summary">
-                        <Form.ControlLabel>Summary</Form.ControlLabel>
+                        <Form.Label>Summary</Form.Label>
                         <CKEditor
                             editor={ClassicEditor}
                             data={formData.summary}
-
                             onChange={handleEditorChange}
-
-
+                            config={{
+                                licenseKey: 'GPL', // Or 'GPL'.
+                                plugins: [Essentials, Paragraph, Bold, Italic,],
+                                toolbar: ['bold', 'italic', '|', 'undo', 'redo', '|', 'numberedList', 'bulletedList']
+                            }}
                         />
                     </Form.Group>
                 </Row>
 
 
-                <Row style={{ marginBottom: "2rem" }}>
-
-                    <Panel bordered header={<span>Vendor Details:</span>} >
-
-                        <Row>
-
+                <Row style={{ marginBottom: "2rem", width: "100%" }}>
+                    <Panel bordered header={<span>Vendor Details:</span>} style={{width:"100%"}}>
+                        <Row className="" style={{ marginBottom: "2rem", width: "100%" }}>
                             <Col xs={8}>
                                 <Form.Group controlId="vendor_name">
-                                    {/* <Form.ControlLabel>Vendor Name</Form.ControlLabel> */}
                                     <Form.Control name="vendor_name" placeholder="Name" value={formData.vendor_name} onChange={handleFormData} />
                                 </Form.Group>
                             </Col>
-
                             <Col xs={8}>
                                 <Form.Group controlId="vendor_phone">
-                                    {/* <Form.ControlLabel>Vendor Phone</Form.ControlLabel> */}
                                     <Form.Control name="vendor_phone" placeholder="Phone" value={formData.vendor_phone} onChange={handleFormData} />
                                 </Form.Group>
-
                             </Col>
                             <Col xs={8}>
                                 <Form.Group controlId="vendor_email">
-                                    {/* <Form.ControlLabel>Vendor Phone</Form.ControlLabel> */}
                                     <Form.Control name="vendor_email" placeholder="Email" type="email" value={formData.vendor_email} onChange={handleFormData} />
                                 </Form.Group>
-
                             </Col>
-
                         </Row>
-
                     </Panel>
-
-
                 </Row>
 
 

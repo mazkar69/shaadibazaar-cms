@@ -1,51 +1,7 @@
 import { Button, Checkbox, Col, Form, Grid, IconButton, NumberInput, Panel, Row, SelectPicker, Stack, TagPicker, Textarea } from "rsuite";
 
 import { CKEditor } from '@ckeditor/ckeditor5-react';
-import {
-    ClassicEditor,
-    Autoformat,
-    Bold,
-    Italic,
-    Underline,
-    BlockQuote,
-    Essentials,
-    FindAndReplace,
-    Font,
-    Heading,
-    Image,
-    ImageCaption,
-    ImageResize,
-    ImageStyle,
-    ImageToolbar,
-    ImageUpload,
-    PictureEditing,
-    Indent,
-    IndentBlock,
-    Link,
-    List,
-    MediaEmbed,
-    Mention,
-    Paragraph,
-    PasteFromOffice,
-    SourceEditing,
-    Table,
-    TableColumnResize,
-    TableToolbar,
-    TextTransformation,
-    HtmlEmbed,
-    CodeBlock,
-    RemoveFormat,
-    Code,
-    SpecialCharacters,
-    HorizontalLine,
-    PageBreak,
-    TodoList,
-    Strikethrough,
-    Subscript,
-    Superscript,
-    Highlight,
-    Alignment
-} from 'ckeditor5';
+import { ClassicEditor, Essentials, Paragraph, Bold, Italic } from 'ckeditor5';
 import 'ckeditor5/ckeditor5.css';
 
 import PlusIcon from '@rsuite/icons/Plus';
@@ -61,7 +17,6 @@ import PhoneNumbers from "../../../utils/json/phoneNumber.json"
 import getBudget from "../../../utils/request/getBudget.js";
 import getVenues from "../../../utils/request/getVenues.js";
 import { useNavigate } from "react-router";
-import { authApi } from "../../../utils/request/apiRequest.js";
 // console.log(VenueFeatureData)
 
 export default function VenueAddForm() {
@@ -283,6 +238,7 @@ export default function VenueAddForm() {
 
     const handleSubmit = async () => {
 
+        // console.log(formData)
 
         if (!formData.city_id || !formData.location_id || !formData.name) {
             alert("Select the required field")
@@ -296,16 +252,22 @@ export default function VenueAddForm() {
 
             const structuredSlug = `${formData.slug}-in-${localitiesSlug[formData.location_id]}`
             // console.log(structuredSlug)
-            let {data} = await authApi.post("/api/venue/create",{ ...formData, slug: structuredSlug })
+            let response = await fetch("/api/venue/create", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ ...formData, slug: structuredSlug })
+            })
 
+            response = await response.json();
 
-
-            if (data.success) {
+            if (response.success) {
                 //Redirect to the listing page 
                 navigate("/venue")
             }
             else {
-                alert(data.msg);
+                alert(response.msg);
             }
 
         } catch (error) {
@@ -498,7 +460,7 @@ export default function VenueAddForm() {
                         {
                             formData.area_capacity?.map((area, i) => {
                                 return (
-                                    <Row key={i} style={{ marginBottom: "1rem", width: "100%" }}>
+                                    <Row key={i} style={{ marginBottom: "1rem", width: "100%"}}>
 
                                         <Col xs={5}>
                                             <Form.Group controlId={`name-${i}`}>
@@ -542,112 +504,15 @@ export default function VenueAddForm() {
                         <CKEditor
                             editor={ClassicEditor}
                             data={formData.summary}
+
                             onChange={handleEditorChange}
                             config={{
                                 licenseKey: 'GPL', // Or 'GPL'.
-                                toolbar: {
-                                    items: [
-                                        'undo', 'redo',
-                                        '|',
-                                        'sourceEditing',
-                                        '|',
-                                        'findAndReplace', 'selectAll',
-                                        '|',
-                                        'heading',
-                                        '|',
-                                        'fontSize', 'fontFamily', 'fontColor', 'fontBackgroundColor',
-                                        '-',
-                                        'bold', 'italic', 'underline',
-                                        {
-                                            label: 'Formatting',
-                                            icon: 'text',
-                                            items: ['strikethrough', 'subscript', 'superscript', 'code', '|', 'removeFormat']
-                                        },
-                                        '|',
-                                        'specialCharacters', 'horizontalLine', 'pageBreak',
-                                        '|',
-                                        'link', 'insertImage', 'insertTable',
-                                        {
-                                            label: 'Insert',
-                                            icon: 'plus',
-                                            items: ['highlight', 'blockQuote', 'mediaEmbed', 'codeBlock', 'htmlEmbed']
-                                        },
-                                        'alignment',
-                                        '|',
-                                        'bulletedList', 'numberedList', 'todoList',
-                                        {
-                                            label: 'Indents',
-                                            icon: 'plus',
-                                            items: ['outdent', 'indent']
-                                        }
-                                    ],
-                                    shouldNotGroupWhenFull: true
-                                },
-                                list: {
-                                    properties: {
-                                        styles: true,
-                                        startIndex: true,
-                                        reversed: true
-                                    }
-                                },
-                                plugins: [
-                                    Autoformat, BlockQuote, Bold, Essentials, FindAndReplace, Font,
-                                    Heading, Image, ImageCaption, ImageResize, ImageStyle, ImageToolbar,
-                                    ImageUpload, Indent, IndentBlock, Italic, Link, List, MediaEmbed,
-                                    Mention, Paragraph, PasteFromOffice, PictureEditing, SourceEditing,
-                                    Table, TableColumnResize, TableToolbar, TextTransformation, Underline,
-                                    HtmlEmbed, CodeBlock, RemoveFormat, Code, SpecialCharacters,
-                                    HorizontalLine, PageBreak, TodoList, Strikethrough, Subscript,
-                                    Superscript, Highlight, Alignment,
-                                ],
-                                placeholder: "Write venue summary here...",
-                                heading: {
-                                    options: [
-                                        { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
-                                        { model: 'heading1', view: 'h1', title: 'Heading 1', class: 'ck-heading_heading1' },
-                                        { model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' },
-                                        { model: 'heading3', view: 'h3', title: 'Heading 3', class: 'ck-heading_heading3' },
-                                        { model: 'heading4', view: 'h4', title: 'Heading 4', class: 'ck-heading_heading4' },
-                                        { model: 'heading5', view: 'h5', title: 'Heading 5', class: 'ck-heading_heading5' },
-                                        { model: 'heading6', view: 'h6', title: 'Heading 6', class: 'ck-heading_heading6' }
-                                    ]
-                                },
-                                image: {
-                                    resizeOptions: [
-                                        {
-                                            name: 'resizeImage:original',
-                                            label: 'Default image width',
-                                            value: null
-                                        },
-                                        {
-                                            name: 'resizeImage:50',
-                                            label: '50% page width',
-                                            value: '50'
-                                        },
-                                        {
-                                            name: 'resizeImage:75',
-                                            label: '75% page width',
-                                            value: '75'
-                                        }
-                                    ],
-                                    toolbar: [
-                                        'imageTextAlternative',
-                                        'toggleImageCaption',
-                                        '|',
-                                        'imageStyle:inline',
-                                        'imageStyle:wrapText',
-                                        'imageStyle:breakText',
-                                        '|',
-                                        'resizeImage'
-                                    ],
-                                },
-                                link: {
-                                    addTargetToExternalLinks: true,
-                                    defaultProtocol: 'https://'
-                                },
-                                table: {
-                                    contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells'],
-                                },
+                                plugins: [Essentials, Paragraph, Bold, Italic,],
+                                toolbar: ['bold', 'italic', '|', 'undo', 'redo', '|', 'numberedList', 'bulletedList']
+
+
+
                             }}
                         />
                     </Form.Group>
@@ -655,7 +520,7 @@ export default function VenueAddForm() {
 
                 <Row style={{ marginBottom: "2rem", width: "100%" }} >
 
-                    <Panel bordered header={<span>Owner Details:</span>} style={{ width: "100%" }}>
+                    <Panel bordered header={<span>Owner Details:</span>}  style={{width:"100%"}}>
 
                         <Row className="" style={{ marginBottom: "2rem", width: "100%" }}>
 

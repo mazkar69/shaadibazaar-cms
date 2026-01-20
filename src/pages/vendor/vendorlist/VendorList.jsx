@@ -17,6 +17,7 @@ import PlusIcon from '@rsuite/icons/Plus';
 
 import { ActionCell, CustomCell, ToggleCell } from './Cells';
 import Link from '../../../components/Link.jsx';
+import { authApi } from '../../../utils/request/apiRequest.js';
 
 
 
@@ -76,22 +77,21 @@ export default function VendorList() {
 
 
                 const url = `/api/vendor/list?limit=${limit}&pg=${page}&search=${searchKeyword}`
+                const {data} = await authApi(url);
 
-                let response = await fetch(url);
-                response = await response.json();
+
+            
 
                 // console.log(response)
 
-                if (response.success) {
-                    setData(response.data.vendors)
-                    setCount(response.data.count)
+                if (data.success) {
+                    setData(data.data.vendors)
+                    setCount(data.data.count)
                     setLoading(false);
                 }
                 else {
                     setLoading(false)
                 }
-
-
             }
 
             getData();
@@ -271,7 +271,7 @@ export default function VendorList() {
                 sortType={sortType}
                 onSortColumn={handleSortColumn}
             >
-                <Column align="center" sortable>
+                <Column align="center" sortable width={100}>
                     <HeaderCell>Id</HeaderCell>
                     <Cell dataKey="_id" />
                 </Column>
