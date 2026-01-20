@@ -2,44 +2,101 @@
 import axios from "axios";
 import useSWR from "swr";
 
+const BASE_URL = import.meta.env.VITE_BACKEND_URI;
 
+// Public API instance (for login, public endpoints)
 const api = axios.create({
-    baseURL: import.meta.env.VITE_BACKEND_URI,
+    baseURL: BASE_URL,
+    withCredentials: false,
+    headers: {
+        'Accept': 'application/json',
+    }
 });
+
+// Add response interceptor to handle errors consistently
+api.interceptors.response.use(
+    response => response,
+    error => {
+        // Handle network errors or CORS issues gracefully
+        if (!error.response) {
+            console.error('Network Error or CORS issue:', error.message);
+        }
+        return Promise.reject(error);
+    }
+);
+
 export default api;
 
 
+// Authenticated API instance
 export const authApi = axios.create({
-    baseURL: import.meta.env.VITE_BACKEND_URI,
-    withCredentials: false,  // Disable credentials for CORS simplicity
+    baseURL: BASE_URL,
+    withCredentials: false,
+    headers: {
+        'Accept': 'application/json',
+    }
 });
 
 
+// Authenticated Multipart Form API instance
 export const authMultiFormApi = axios.create({
-    baseURL: import.meta.env.VITE_BACKEND_URI,
+    baseURL: BASE_URL,
+    withCredentials: false,
 });
 
 
-authApi.interceptors.request.use(config => {
-    const token = localStorage.getItem("x4976gtylCC");
-    if (token) {
-        config.headers['Authorization'] = `Bearer ${token}`;
+// Request interceptor for authApi - adds Authorization header
+authApi.interceptors.request.use(
+    config => {
+        const token = localStorage.getItem("x4976gtylCC");
+        if (token) {
+            config.headers['Authorization'] = `Bearer ${token}`;
+        }
+        return config;
+    },
+    error => Promise.reject(error)
+);
+
+// Response interceptor for authApi - handles errors consistently
+authApi.interceptors.response.use(
+    response => response,
+    error => {
+        if (!error.response) {
+            console.error('Network Error or CORS issue:', error.message);
+        }
+        // Handle 401 unauthorized - token might be expired
+        if (error.response?.status === 401) {
+            localStorage.removeItem("x4976gtylCC");
+            // Optionally redirect to login
+            // window.location.href = '/login';
+        }
+        return Promise.reject(error);
     }
-    return config;
-}, error => {
-    return Promise.reject(error);
-});
+);
 
-authMultiFormApi.interceptors.request.use(config => {
-    const token = localStorage.getItem("x4976gtylCC");
-    if (token) {
-        config.headers['Authorization'] = `Bearer ${token}`;
+// Request interceptor for authMultiFormApi
+authMultiFormApi.interceptors.request.use(
+    config => {
+        const token = localStorage.getItem("x4976gtylCC");
+        if (token) {
+            config.headers['Authorization'] = `Bearer ${token}`;
+        }
+        // Don't set Content-Type for multipart - let browser set it with boundary
+        return config;
+    },
+    error => Promise.reject(error)
+);
+
+// Response interceptor for authMultiFormApi
+authMultiFormApi.interceptors.response.use(
+    response => response,
+    error => {
+        if (!error.response) {
+            console.error('Network Error or CORS issue:', error.message);
+        }
+        return Promise.reject(error);
     }
-    config.headers["Content-Type"] = "multipart/form-data";
-    return config;
-}, error => {
-    return Promise.reject(error);
-});
+);
 
 
 // ----------------------------------------------------------------
