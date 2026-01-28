@@ -309,7 +309,7 @@ export default function AssignedLeadList() {
                     <HeaderCell>Date</HeaderCell>
                     <Cell>
                         {rowData => (
-                            <span>{formatDate(rowData.updatedAt)}</span>
+                            <span>{formatDate(rowData.createdAt)}</span>
                         )}
                     </Cell>
                 </Column>

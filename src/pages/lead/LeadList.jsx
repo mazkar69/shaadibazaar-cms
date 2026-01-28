@@ -344,7 +344,7 @@ export default function LeadList() {
                     <HeaderCell>Date</HeaderCell>
                     <Cell>
                         {rowData => (
-                            <span>{formatDate(rowData.updatedAt)}</span>
+                            <span>{formatDate(rowData.createdAt)}</span>
                         )}
                     </Cell>
                 </Column>
