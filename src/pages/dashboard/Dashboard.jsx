@@ -1,140 +1,221 @@
-import React from 'react';
-import { Row, Col, Panel, } from 'rsuite';
-// import * as images from '../../images/charts'
+import React, { useState, useEffect } from 'react';
+import { Row, Col, DateRangePicker, Stack } from 'rsuite';
+import { authApi } from '../../utils/request/apiRequest.js';
 
-// import BarChart from './BarChart';
-// import PieChart from './PieChart';
-// import DataTable from './DataTable';
+// Import chart components
+import ConversionByPieChart from './ConversionByPieChart.jsx';
+import SourceWisePieChart from './SourceWisePieChart.jsx';
+import PlatformWisePieChart from './PlatformWisePieChart.jsx';
+import Top20VenuesChart from './Top20VenuesChart.jsx';
+import Top20VendorsChart from './Top20VendorsChart.jsx';
+import VenueLocalitiesChart from './VenueLocalitiesChart.jsx';
+import VendorLocalitiesChart from './VendorLocalitiesChart.jsx';
 
-// const barChartData = [
-//   {
-//     name: 'Web',
-//     data: [
-//       11, 8, 9, 10, 3, 11, 11, 11, 12, 13, 2, 12, 5, 8, 22, 6, 8, 6, 4, 1, 8, 24, 29, 51, 40, 47,
-//       23, 26, 50, 26, 22, 27, 46, 47, 81, 46, 40
-//     ]
-//   },
-//   {
-//     name: 'Social',
-//     data: [
-//       7, 5, 4, 3, 3, 11, 4, 7, 5, 12, 12, 15, 13, 12, 6, 7, 7, 1, 5, 5, 2, 12, 4, 6, 18, 3, 5, 2,
-//       13, 15, 20, 47, 18, 15, 11, 10, 9
-//     ]
-//   },
-//   {
-//     name: 'Other',
-//     data: [
-//       4, 9, 11, 7, 8, 3, 6, 5, 5, 4, 6, 4, 11, 10, 3, 6, 7, 5, 2, 8, 4, 9, 9, 2, 6, 7, 5, 1, 8, 3,
-//       12, 3, 4, 9, 7, 11, 10
-//     ]
-//   }
-// ];
+// Helper to format date as YYYY-MM-DD
+const formatDate = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+};
+
+// Get default date range (last 30 days)
+const getDefaultDateRange = () => {
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - 30);
+    return [startDate, endDate];
+};
 
 const Dashboard = () => {
-  return (
-    <>
-      <Row gutter={30} className="dashboard-header">
-        <Col xs={8}>
-          <Panel className="trend-box bg-gradient-red">
-            {/* <img className="chart-img" src={images.PVIcon} /> */}
-            <div className="title">Page Views </div>
-            <div className="value">281,358</div>
-          </Panel>
-        </Col>
-        <Col xs={8}>
-          <Panel className="trend-box bg-gradient-green">
-            {/* <img className="chart-img" src={images.VVICon} /> */}
-            <div className="title">Visits </div>
-            <div className="value">251,901</div>
-          </Panel>
-        </Col>
-        <Col xs={8}>
-          <Panel className="trend-box bg-gradient-blue">
-            {/* <img className="chart-img" src={images.UVIcon} /> */}
-            <div className="title">Unique Visitors</div>
-            <div className="value">25,135</div>
-          </Panel>
-        </Col>
-      </Row>
+    // Global date range state
+    const [dateRange, setDateRange] = useState(getDefaultDateRange());
 
-      {/* <Row gutter={30}>
-        <Col xs={16}>
-          <BarChart
-            title="Traffic Summary"
-            actions={
-              <ButtonGroup>
-                <Button active>Day</Button>
-                <Button>Week</Button>
-                <Button>Month</Button>
-              </ButtonGroup>
+    // Pie chart data states
+    const [pieChartData, setPieChartData] = useState({
+        conversion_by_group: [],
+        source_group: [],
+        platform_group: []
+    });
+    const [pieChartLoading, setPieChartLoading] = useState(false);
+
+    // Top 20 data states
+    const [top20Data, setTop20Data] = useState({
+        venue: [],
+        vendor: []
+    });
+    const [top20Loading, setTop20Loading] = useState(false);
+
+    // Locality data states
+    const [localityData, setLocalityData] = useState({
+        venueLocalities: [],
+        vendorLocalities: []
+    });
+    const [localityLoading, setLocalityLoading] = useState(false);
+
+    // Fetch pie chart data
+    const fetchPieChartData = async (startDate, endDate) => {
+        try {
+            setPieChartLoading(true);
+            const url = `/api/analysis/pie-chart-data?startDate=${startDate}&endDate=${endDate}`;
+            const { data } = await authApi.get(url);
+            
+            if (data?.data) {
+                setPieChartData({
+                    conversion_by_group: data.data.conversion_by_group || [],
+                    source_group: data.data.source_group || [],
+                    platform_group: data.data.platform_group || []
+                });
             }
-            data={barChartData}
-            type="bar"
-            labels={[
-              '2022-01-20',
-              '2022-01-21',
-              '2022-01-22',
-              '2022-01-23',
-              '2022-01-24',
-              '2022-01-25',
-              '2022-01-26',
-              '2022-01-27',
-              '2022-01-28',
-              '2022-01-29',
-              '2022-01-30',
-              '2022-02-01',
-              '2022-02-02',
-              '2022-02-03',
-              '2022-02-04',
-              '2022-02-05',
-              '2022-02-06',
-              '2022-02-07',
-              '2022-02-08',
-              '2022-02-09',
-              '2022-02-10',
-              '2022-02-11',
-              '2022-02-12',
-              '2022-02-13',
-              '2022-02-14',
-              '2022-02-15',
-              '2022-02-16',
-              '2022-02-17',
-              '2022-02-18',
-              '2022-02-19',
-              '2022-02-20',
-              '2022-02-21',
-              '2022-02-22',
-              '2022-02-23',
-              '2022-02-24',
-              '2022-02-25',
-              '2022-02-26'
-            ]}
-          />
-        </Col>
-        <Col xs={8}>
-          <PieChart
-            title="Traffic Sources"
-            data={[112332, 123221, 432334, 342334, 133432]}
-            type="donut"
-            labels={['Direct', 'Internal', 'Referrals', 'Search Engines', 'Other']}
-          />
-        </Col>
-      </Row>
-      <Row gutter={30}>
-        <Col xs={16}>
-          <DataTable />
-        </Col>
-        <Col xs={8}>
-          <PieChart
-            title="Browsers"
-            data={[10000, 3000, 2000, 1000, 900]}
-            type="pie"
-            labels={['Chrome', 'Edge', 'Firefox', 'Safari', 'Other']}
-          />
-        </Col>
-      </Row> */}
-    </>
-  );
+        } catch (error) {
+            console.error('Error fetching pie chart data:', error);
+            setPieChartData({
+                conversion_by_group: [],
+                source_group: [],
+                platform_group: []
+            });
+        } finally {
+            setPieChartLoading(false);
+        }
+    };
+
+    // Fetch top 20 data
+    const fetchTop20Data = async (startDate, endDate) => {
+        try {
+            setTop20Loading(true);
+            const url = `/api/analysis/top20?startDate=${startDate}&endDate=${endDate}`;
+            const { data } = await authApi.get(url);
+            
+            if (data?.data) {
+                setTop20Data({
+                    venue: data.data.venue || [],
+                    vendor: data.data.vendor || []
+                });
+            }
+        } catch (error) {
+            console.error('Error fetching top 20 data:', error);
+            setTop20Data({
+                venue: [],
+                vendor: []
+            });
+        } finally {
+            setTop20Loading(false);
+        }
+    };
+
+    // Fetch locality data
+    const fetchLocalityData = async (startDate, endDate) => {
+        try {
+            setLocalityLoading(true);
+            const url = `/api/analysis/top20Locality?startDate=${startDate}&endDate=${endDate}`;
+            const { data } = await authApi.get(url);
+            
+            if (data?.data) {
+                setLocalityData({
+                    venueLocalities: data.data.venueLocalitiesFinalData || [],
+                    vendorLocalities: data.data.vendorLocalitiesFinalData || []
+                });
+            }
+        } catch (error) {
+            console.error('Error fetching locality data:', error);
+            setLocalityData({
+                venueLocalities: [],
+                vendorLocalities: []
+            });
+        } finally {
+            setLocalityLoading(false);
+        }
+    };
+
+    // Fetch data when date range changes
+    useEffect(() => {
+        if (dateRange && dateRange[0] && dateRange[1]) {
+            const startDate = formatDate(dateRange[0]);
+            const endDate = formatDate(dateRange[1]);
+            
+            fetchPieChartData(startDate, endDate);
+            fetchTop20Data(startDate, endDate);
+            fetchLocalityData(startDate, endDate);
+        }
+    }, [dateRange]);
+
+    // Handle date range change
+    const handleDateRangeChange = (value) => {
+        if (value) {
+            setDateRange(value);
+        }
+    };
+
+    return (
+        <>
+            {/* Global Date Filter */}
+            <Stack justifyContent="flex-end" style={{ marginBottom: 20 }}>
+                <DateRangePicker
+                    value={dateRange}
+                    onChange={handleDateRangeChange}
+                    placeholder="Select Date Range"
+                    format="yyyy-MM-dd"
+                    cleanable={false}
+                    size="md"
+                    style={{ width: 280 }}
+                />
+            </Stack>
+
+            {/* Pie Charts Row */}
+            <Row gutter={30}>
+                <Col xs={8}>
+                    <ConversionByPieChart 
+                        data={pieChartData.conversion_by_group} 
+                        loading={pieChartLoading} 
+                    />
+                </Col>
+                <Col xs={8}>
+                    <SourceWisePieChart 
+                        data={pieChartData.source_group} 
+                        loading={pieChartLoading} 
+                    />
+                </Col>
+                <Col xs={8}>
+                    <PlatformWisePieChart 
+                        data={pieChartData.platform_group} 
+                        loading={pieChartLoading} 
+                    />
+                </Col>
+            </Row>
+
+            {/* Bar Charts Row */}
+            <Row gutter={30} style={{ marginTop: 30 }}>
+                <Col xs={12}>
+                    <Top20VenuesChart 
+                        data={top20Data.venue} 
+                        loading={top20Loading} 
+                    />
+                </Col>
+                <Col xs={12}>
+                    <Top20VendorsChart 
+                        data={top20Data.vendor} 
+                        loading={top20Loading} 
+                    />
+                </Col>
+            </Row>
+
+            {/* Locality Charts Row */}
+            <Row gutter={30} style={{ marginTop: 30 }}>
+                <Col xs={12}>
+                    <VenueLocalitiesChart 
+                        data={localityData.venueLocalities} 
+                        loading={localityLoading} 
+                    />
+                </Col>
+                <Col xs={12}>
+                    <VendorLocalitiesChart 
+                        data={localityData.vendorLocalities} 
+                        loading={localityLoading} 
+                    />
+                </Col>
+            </Row>
+        </>
+    );
 };
 
 export default Dashboard;
