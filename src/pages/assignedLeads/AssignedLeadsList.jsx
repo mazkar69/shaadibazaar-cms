@@ -96,7 +96,7 @@ export default function AssignedLeadList() {
                 let { data } = await authApi(url)
 
                 if (data.success) {
-                    setData(data.data)
+                    setData(data.data.leads)
                     setCount(data.data.count)
                     setLoading(false);
                 }
@@ -469,6 +469,12 @@ export default function AssignedLeadList() {
                                     accepter={Textarea}
                                     placeholder="Enter remarks"
                                 />
+                            </Form.Group>
+
+                            <Form.Group controlId="assigned_to">
+                                <Button appearance="primary" onClick={handleAddLead}>
+                                    {modalType} Leads
+                                </Button>
                             </Form.Group>
 
 
