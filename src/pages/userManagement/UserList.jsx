@@ -55,8 +55,6 @@ export default function UserList() {
     const [toggleRender, setToggleRender] = useState(false);
     const refetch = () => setToggleRender(!toggleRender);
 
-
-    console.log("Data:", data)
     useEffect(() => {
 
         try {
@@ -69,9 +67,6 @@ export default function UserList() {
 
 
                 const { data } = await authApi(`/api/adminUser/read-all?search=${searchKeyword}&limit=${limit}&pg=${page}&role=${searchRole || ""}`)
-
-
-
 
                 if (data.success) {
                     setData(data.users)
@@ -249,6 +244,7 @@ export default function UserList() {
                 onSortColumn={handleSortColumn}
 
             >
+               
                 <Column sortable width={150}>
                     <HeaderCell>Role</HeaderCell>
                     <Cell dataKey='role' />
