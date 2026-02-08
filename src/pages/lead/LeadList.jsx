@@ -200,6 +200,11 @@ export default function LeadList() {
 
         try {
 
+            // Ask confirmation before delete
+            if (!window.confirm("Are you sure you want to delete this lead?")) {
+                return;
+            }
+
             const url = `/api/leads/delete/${_id}`
 
             const { data } = await authApi.delete(url)
@@ -383,6 +388,18 @@ export default function LeadList() {
                     </Cell>
                 </Column>
 
+                {/* Add status */}
+                <Column width={100} resizable sortable align='center'>
+                    <HeaderCell>Status</HeaderCell>
+                    <Cell>
+                        {rowData => (
+                            <Tag color={rowData.status === "resolve" ? "green" : rowData.status === "pending" ? "blue" : "red"}>
+                                {rowData.status}
+                            </Tag>
+                        )}
+                    </Cell>
+                </Column>
+
                 <Column width={100} resizable sortable align='center'>
                     <HeaderCell>Remark</HeaderCell>
                     <Cell>
@@ -413,7 +430,7 @@ export default function LeadList() {
 
 
 
-                <Column width={100} align='center'>
+                <Column width={150} align='center'>
                     <HeaderCell>Action</HeaderCell>
                     <ActionCell
                         dataKey="id"

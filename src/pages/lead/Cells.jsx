@@ -37,12 +37,12 @@ export const ActionCell = ({ rowData, handleDelete, handleUpdateStatus, handleOp
   return (
     <Cell {...props} className="link-group">
       <ButtonGroup>
-        
-        <IconButton 
-          icon={<GrView color='blue'/>} 
-          size='sm' 
-          appearance='subtle' 
-          title="View" 
+
+        <IconButton
+          icon={<GrView color='blue' />}
+          size='sm'
+          appearance='subtle'
+          title="View"
           onClick={() => handleView(rowData)}
         />
 
@@ -60,28 +60,28 @@ export const ActionCell = ({ rowData, handleDelete, handleUpdateStatus, handleOp
           )
         }} />
 
-        <IconButton icon={<RiDeleteBin6Line color='red'/>} size='sm' appearance='subtle' title="Delete" onClick={()=>handleDelete(rowData._id)}/>
+        {/* <IconButton icon={<RiDeleteBin6Line color='red' />} size='sm' appearance='subtle' title="Delete" onClick={() => handleDelete(rowData._id)} /> */}
 
-        <Whisper placement="autoVerticalEnd" trigger="click"
-          speaker={({ onClose, left, top, className }, ref) => {
-            const handleSelect = eventKey => {
-              onClose();
-              handleUpdateStatus(rowData._id, eventKey)
-              console.log(eventKey);
-            };
-            return (
-              <Popover ref={ref} className={className} style={{ left, top }} full>
-                <Dropdown.Menu onSelect={handleSelect}>
-                  <Dropdown.Item eventKey={"pending"}>Pending</Dropdown.Item>
-                  <Dropdown.Item eventKey={"resolve"}>Resolve</Dropdown.Item>
-                  <Dropdown.Item eventKey={"reject"}>Reject</Dropdown.Item>
-                </Dropdown.Menu>
-              </Popover>
-            );
-          }}
-        >
-          <IconButton appearance="subtle" icon={<BsThreeDots />} size='sm' title="Menu" />
-        </Whisper>
+      <Whisper placement="autoVerticalEnd" trigger="click"
+        speaker={({ onClose, left, top, className }, ref) => {
+          const handleSelect = eventKey => {
+            onClose();
+            handleUpdateStatus(rowData._id, eventKey)
+            console.log(eventKey);
+          };
+          return (
+            <Popover ref={ref} className={className} style={{ left, top }} full>
+              <Dropdown.Menu onSelect={handleSelect}>
+                <Dropdown.Item eventKey={"pending"}>Pending</Dropdown.Item>
+                <Dropdown.Item eventKey={"resolve"}>Resolve</Dropdown.Item>
+                <Dropdown.Item eventKey={"reject"}>Reject</Dropdown.Item>
+              </Dropdown.Menu>
+            </Popover>
+          );
+        }}
+      >
+        <IconButton appearance="subtle" icon={<BsThreeDots />} size='sm' title="Menu" />
+      </Whisper>
       </ButtonGroup>
     </Cell>
   );

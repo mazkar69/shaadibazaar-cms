@@ -169,9 +169,15 @@ export default function ConversionList() {
                 sortType={sortType}
                 onSortColumn={handleSortColumn}
             >
-                <Column align="center" sortable>
+                <Column align="center" sortable width={100}>
                     <HeaderCell>Id</HeaderCell>
                     <Cell dataKey="_id" />
+                </Column>
+
+
+                <Column width={250} resizable sortable>
+                    <HeaderCell>url</HeaderCell>
+                    <Cell dataKey='url' />
                 </Column>
 
                 <Column sortable width={150}>
@@ -181,13 +187,6 @@ export default function ConversionList() {
                             <span>{formatDate(rowData.updatedAt)}</span>
                         )}
                     </Cell>
-                </Column>
-
-
-
-                <Column width={250} resizable sortable>
-                    <HeaderCell>url</HeaderCell>
-                    <Cell dataKey='url' />
                 </Column>
 
                 <Column width={200} resizable sortable>
