@@ -9,6 +9,9 @@ import api from "./utils/request/apiRequest.js";
 const DashboardPage = lazy(() => import('./pages/dashboard/index.jsx'));
 const LeadList = lazy(() => import('./pages/lead/index.jsx'));
 const ConversionList = lazy(() => import("./pages/conversion/index.jsx"));
+const ContactUsList = lazy(() => import('./pages/contact/index.jsx'));
+const SiteUserPage = lazy(() => import('./pages/siteUser/index.jsx'));
+const BusinessUserPage = lazy(() => import('./pages/businessUser/index.jsx'));
 
 // Venue pages
 const VenueList = lazy(() => import('./pages/venue/venuelist/index.jsx'));
@@ -179,6 +182,9 @@ function App() {
                   <Route path='manage-user' element={<MangeUser />} />
                   <Route path="leads" element={<LeadList />} />
                   <Route path="conversion" element={<ConversionList />} />
+                  <Route path="contact-us" element={<ContactUsList />} />
+                  <Route path="site-user" element={<SiteUserPage />} />
+                  <Route path="business-user" element={<BusinessUserPage />} />
                 </>
 
               )

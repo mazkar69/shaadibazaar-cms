@@ -43,6 +43,25 @@ export const superAdminNavs = [
         icon: <Icon as={AdvancedAnalyticsIcon} />,
 
       },
+      {
+        eventKey: 'contact-us',
+        title: 'Contact Us',
+        to: '/contact-us',
+        icon: <Icon as={LocationIcon} />,
+
+      },
+      {
+        eventKey: 'site-user',
+        title: 'Site User',
+        to: '/site-user',
+        icon: <Icon as={LocationIcon} />,
+      },
+      {
+        eventKey: 'business-user',
+        title: 'Business User',
+        to: '/business-user',
+        icon: <Icon as={LocationIcon} />,
+      },
 
     ]
 
