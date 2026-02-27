@@ -2,8 +2,8 @@ import React from 'react';
 import { Icon } from '@rsuite/icons';
 import { TbBuildingStore } from "react-icons/tb";
 import { VscTable } from 'react-icons/vsc';
-import { MdDashboard, } from 'react-icons/md';
-import { FaUserAlt } from 'react-icons/fa';
+import { MdDashboard, MdAssignment } from 'react-icons/md';
+import { FaUserAlt, FaUsers, FaBriefcase } from 'react-icons/fa';
 import OthersIcon from '@rsuite/icons/Others';
 import AdvancedAnalyticsIcon from '@rsuite/icons/AdvancedAnalytics';
 import EventDetailIcon from '@rsuite/icons/EventDetail';
@@ -54,13 +54,13 @@ export const superAdminNavs = [
         eventKey: 'site-user',
         title: 'Site User',
         to: '/site-user',
-        icon: <Icon as={LocationIcon} />,
+        icon: <Icon as={FaUsers} />,
       },
       {
         eventKey: 'business-user',
         title: 'Business User',
         to: '/business-user',
-        icon: <Icon as={LocationIcon} />,
+        icon: <Icon as={FaBriefcase} />,
       },
 
     ]
@@ -149,7 +149,7 @@ export const salesNavs = [
   },
   {
     eventKey: 'assinged-leads',
-    icon: <Icon as={MdDashboard} />,
+    icon: <Icon as={MdAssignment} />,
     title: 'Assigned Leads',
     to: '/assigned-leads'
   },
