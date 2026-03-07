@@ -20,7 +20,7 @@ import MobileIcon from '@rsuite/icons/Mobile';
 import PcIcon from '@rsuite/icons/Pc';
 import ReloadIcon from '@rsuite/icons/Reload';
 import formatDate from '../../utils/formatDate.js';
-import {authApi} from '../../utils/request/apiRequest.js';
+import { authApi } from '../../utils/request/apiRequest.js';
 
 export default function ConversionList() {
 
@@ -35,7 +35,7 @@ export default function ConversionList() {
     const [count, setCount] = useState(0);
     const [limit, setLimit] = useState(10);
     const [page, setPage] = useState(1);
-    const [range,setRange] = useState([])
+    const [range, setRange] = useState([])
     const [searchKeyword, setSearchKeyword] = useState('');
     const [toggleRender, setToggleRender] = useState(false);
 
@@ -50,7 +50,7 @@ export default function ConversionList() {
                 setLoading(true)
 
 
-                const {data} = await authApi(`/api/conversion/getAll?limit=${limit}&pg=${page}&search=${searchKeyword}&range=${range}`)
+                const { data } = await authApi(`/api/conversion/getAll?limit=${limit}&pg=${page}&search=${searchKeyword}&range=${range}`)
 
 
                 if (data.success) {
@@ -69,7 +69,7 @@ export default function ConversionList() {
             console.log(error)
             setLoading(false);
         }
-    }, [page, limit, searchKeyword,range, toggleRender])
+    }, [page, limit, searchKeyword, range, toggleRender])
 
     const magicSearchFunction = (fn, d) => {
         let timmer;
@@ -141,10 +141,10 @@ export default function ConversionList() {
 
         <>
             <Stack className="table-toolbar" justifyContent="space-between">
-                <Stack spacing={12}> 
+                <Stack spacing={12}>
                     <IconButton icon={<ReloadIcon />} title={"refresh"} size="sm" onClick={() => setToggleRender(!toggleRender)} />
 
-                    <DateRangePicker onChange={value=> value ? setRange(value) : setRange("")} placeholder="Select date range"/>
+                    <DateRangePicker onChange={value => value ? setRange(value) : setRange("")} placeholder="Select date range" />
                 </Stack>
 
                 <Stack spacing={6}>
@@ -175,10 +175,7 @@ export default function ConversionList() {
                 </Column>
 
 
-                <Column width={250} resizable sortable>
-                    <HeaderCell>url</HeaderCell>
-                    <Cell dataKey='url' />
-                </Column>
+
 
                 <Column sortable width={150}>
                     <HeaderCell>Date</HeaderCell>
@@ -189,11 +186,16 @@ export default function ConversionList() {
                     </Cell>
                 </Column>
 
+                <Column width={250} resizable sortable>
+                    <HeaderCell>url</HeaderCell>
+                    <Cell dataKey='url' />
+                </Column>
+
                 <Column width={200} resizable sortable>
                     <HeaderCell>slug</HeaderCell>
                     <Cell>
                         {rowData => (<Stack spacing={12}>
-                       
+
                             <Badge content={rowData.count} maxCount={1000}></Badge>
                             <span>{rowData.slug}</span>
                         </Stack>)}
@@ -228,23 +230,14 @@ export default function ConversionList() {
                 <Column width={100} align='center'>
                     <HeaderCell>Platform</HeaderCell>
                     <Cell>
-                       {
-                        (rowData ) => (
-                            rowData.platform === "des" ? <PcIcon/> : <MobileIcon/>
-                        )
-                       }
+                        {
+                            (rowData) => (
+                                rowData.platform === "des" ? <PcIcon /> : <MobileIcon />
+                            )
+                        }
                     </Cell>
                 </Column>
-
-
-
-
-
-
-
             </Table>
-
-
 
             <div style={{ padding: "10px 20px", }}>
                 <Pagination
