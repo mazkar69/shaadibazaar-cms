@@ -1,6 +1,6 @@
 # .github/workflows/deploy.yml
 
-name: Deploy React (Cached)
+name: Deploy React 
 
 on:
   push:
